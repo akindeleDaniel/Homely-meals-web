@@ -1,91 +1,90 @@
-import { Controller, Post, Get, Route, Body, Tags, Request, Put, Path } from "tsoa";
+import { Controller, Route, Tags, Post, Put, Get, Body, Request, Path } from "tsoa";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Admin from "../models/admin.model";
 import Order from "../models/order.models";
 import { sendWhatsApp } from "../utils/twilio";
 
-interface AdminLoginRequest {
-  email: string;
-  password: string;
-}
-
-interface updateOrderStatusRequest {
-  status: "pending" | "confirmed" | "delivered";
-}
-
 @Route("admin")
 @Tags("Admin")
 export class AdminController extends Controller {
 
-  private verifyAdmin(req: any) {
-    const auth = req.headers.authorization;
-    if (!auth) throw new Error("No token");
-
-    const token = auth.split(" ")[1];
-    return jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
+  private auth(req: any) {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    if (decoded.role !== "admin") throw new Error("Unauthorized");
   }
 
   @Post("login")
-  public async login(@Body() body: AdminLoginRequest) {
-    const admin = await Admin.findOne({ email: body.email });
-    if (!admin) return { message: "Invalid credentials" };
+  async login(@Body() b: any) {
+    const a = await Admin.findOne({ email: b.email });
+    if (!a || !a.password){
+      return {message: "Invalid credentials"};
+    }
 
-    const ok = await bcrypt.compare(body.password, admin.password);
-    if (!ok) return { message: "Invalid credentials" };
+    const ok = await bcrypt.compare(b.password, a.password);
+    if (!ok) {
+      return { message: "Invalid credentials" };
+    }
 
-    const token = jwt.sign(
-      { email: admin.email, role: "admin" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
-    );
-
-    return { message: "Admin logged in", token };
-  }
-
-  @Put("orders/{orderId}")
-  public async updateOrderStatus(
-    @Path() orderId: string,
-    @Request() req: any,
-    @Body() body: updateOrderStatusRequest
-  ) {
-    this.verifyAdmin(req);
-
-    const order = await Order.findByIdAndUpdate(
-      orderId, 
-      { status: body.status }, 
-      { new: true }
-    );
-    if (!order) return { message: "Order not found" };
-
-    await sendWhatsApp(
-      "+2349073211767",
-      `Hello ${order.userEmail} is ${order.status}. Thank you for choosing Homely Meals!`
-    );
-    await order.save();
-
-    return { message: `Order ${order._id} status updated to ${body.status} successfully`, order };
+    return {
+      token: jwt.sign(
+        { email: a.email, role: "admin" },
+        process.env.JWT_SECRET!,
+        { expiresIn: "1d" }
+      ),
+    };
   }
 
   @Get("orders")
-  public async getAllOrders(@Request() req: any) {
-    this.verifyAdmin(req);
+  async get(@Request() r: any) {
+    this.auth(r);
+    const orders = await Order.find()
+    .sort({ createdAt: -1 })
+    .lean();
 
-    const orders = await Order.find().sort({ createdAt: -1 });
-
-    return orders.map(order => ({
-      id: order._id.toString(),
-      phoneNumber: order.phoneNumber,
-      items: order.items,
-      subtotal: order.subtotal,
-      deliveryFee: order.deliveryFee,
-      total: order.total,
-      status: order.status,
-      deliveryType: order.deliveryType,
-      deliveryAddress: order.deliveryAddress ?? undefined,
-      pickupLocation: order.pickupLocation ?? undefined,
-      deliveryWindow: order.deliveryWindow,
-      createdAt: order.createdAt,
+    return orders.map((o) => ({
+      id: o._id.toString(),
+      phoneNumber: o.phoneNumber,
+      items: o.items,
+      subtotal: o.subtotal,
+      deliveryFee: o.deliveryFee,
+      total: o.total,
+      status: o.status,
+      deliveryType: o.deliveryType,
+      deliveryAddress: o.deliveryAddress ?? undefined,
+      pickupLocation: o.pickupLocation ?? undefined,
+      deliveryWindow: o.deliveryWindow ?? undefined,
+      createdAt: o.createdAt,
     }));
+  }
+
+  @Put("orders/{id}")
+  async update(@Path() id: string, @Body() b: any, @Request() r: any) {
+    this.auth(r);
+
+    const o = await Order.findByIdAndUpdate(id, b, { new: true });
+    if (!o) {
+      throw new Error("Order not found");
+    }
+
+    if (!o.phoneNumber) {
+      throw new Error("Phone number missing");
+    }
+    await sendWhatsApp(o.phoneNumber, `Order status: ${o.status}`);
+    return {
+    id: o._id.toString(),
+    phoneNumber: o.phoneNumber,
+    items: o.items,
+    subtotal: o.subtotal,
+    deliveryFee: o.deliveryFee,
+    total: o.total,
+    status: o.status,
+    deliveryType: o.deliveryType,
+    deliveryAddress: o.deliveryAddress,
+    pickupLocation: o.pickupLocation,
+    deliveryWindow: o.deliveryWindow,
+    createdAt: o.createdAt,
+    }
   }
 }

@@ -1,43 +1,25 @@
 import { DeliveryArea } from "../constants/delivery";
-interface PlaceOrderBody {
+interface CreateOrderInput {
+    userEmail: string;
+    phoneNumber: string;
+    cart: any;
     deliveryType: "pickup" | "delivery";
     deliveryArea?: DeliveryArea;
     deliveryAddress?: string;
 }
-export declare const OrderService: (user: any, cart: any, body: PlaceOrderBody) => Promise<import("mongoose").Document<unknown, {}, {
-    phoneNumber: string;
-    userEmail: string;
-    items: any;
-    status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
-    deliveryAddress?: string | null | undefined;
-    pickupLocation?: string | null | undefined;
-    deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
-} & import("mongoose").DefaultTimestampProps, {
+export declare const createOrder: (input: CreateOrderInput) => Promise<{
     id: string;
-}, {
-    timestamps: true;
-}> & Omit<{
     phoneNumber: string;
-    userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
-    deliveryAddress?: string | null | undefined;
-    pickupLocation?: string | null | undefined;
-    deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
-} & import("mongoose").DefaultTimestampProps & {
-    _id: import("mongoose").Types.ObjectId;
-} & {
-    __v: number;
-}, "id"> & {
-    id: string;
+    deliveryType: "pickup" | "delivery";
+    deliveryAddress: string | null | undefined;
+    pickupLocation: string | null | undefined;
+    deliveryWindow: string | null | undefined;
+    createdAt: NativeDate;
 }>;
 export {};
 //# sourceMappingURL=order.service.d.ts.map

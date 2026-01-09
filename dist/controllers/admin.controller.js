@@ -23,49 +23,69 @@ const admin_model_1 = __importDefault(require("../models/admin.model"));
 const order_models_1 = __importDefault(require("../models/order.models"));
 const twilio_1 = require("../utils/twilio");
 let AdminController = class AdminController extends tsoa_1.Controller {
-    verifyAdmin(req) {
-        const auth = req.headers.authorization;
-        if (!auth)
-            throw new Error("No token");
-        const token = auth.split(" ")[1];
-        return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+    auth(req) {
+        const token = req.headers.authorization?.split(" ")[1];
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        if (decoded.role !== "admin")
+            throw new Error("Unauthorized");
     }
-    async login(body) {
-        const admin = await admin_model_1.default.findOne({ email: body.email });
-        if (!admin)
+    async login(b) {
+        const a = await admin_model_1.default.findOne({ email: b.email });
+        if (!a || !a.password) {
             return { message: "Invalid credentials" };
-        const ok = await bcrypt_1.default.compare(body.password, admin.password);
-        if (!ok)
+        }
+        const ok = await bcrypt_1.default.compare(b.password, a.password);
+        if (!ok) {
             return { message: "Invalid credentials" };
-        const token = jsonwebtoken_1.default.sign({ email: admin.email, role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" });
-        return { message: "Admin logged in", token };
+        }
+        return {
+            token: jsonwebtoken_1.default.sign({ email: a.email, role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" }),
+        };
     }
-    async updateOrderStatus(orderId, req, body) {
-        this.verifyAdmin(req);
-        const order = await order_models_1.default.findByIdAndUpdate(orderId, { status: body.status }, { new: true });
-        if (!order)
-            return { message: "Order not found" };
-        await (0, twilio_1.sendWhatsApp)("+2349073211767", `Hello ${order.userEmail} is ${order.status}. Thank you for choosing Homely Meals!`);
-        await order.save();
-        return { message: `Order ${order._id} status updated to ${body.status} successfully`, order };
-    }
-    async getAllOrders(req) {
-        this.verifyAdmin(req);
-        const orders = await order_models_1.default.find().sort({ createdAt: -1 });
-        return orders.map(order => ({
-            id: order._id.toString(),
-            phoneNumber: order.phoneNumber,
-            items: order.items,
-            subtotal: order.subtotal,
-            deliveryFee: order.deliveryFee,
-            total: order.total,
-            status: order.status,
-            deliveryType: order.deliveryType,
-            deliveryAddress: order.deliveryAddress ?? undefined,
-            pickupLocation: order.pickupLocation ?? undefined,
-            deliveryWindow: order.deliveryWindow,
-            createdAt: order.createdAt,
+    async get(r) {
+        this.auth(r);
+        const orders = await order_models_1.default.find()
+            .sort({ createdAt: -1 })
+            .lean();
+        return orders.map((o) => ({
+            id: o._id.toString(),
+            phoneNumber: o.phoneNumber,
+            items: o.items,
+            subtotal: o.subtotal,
+            deliveryFee: o.deliveryFee,
+            total: o.total,
+            status: o.status,
+            deliveryType: o.deliveryType,
+            deliveryAddress: o.deliveryAddress ?? undefined,
+            pickupLocation: o.pickupLocation ?? undefined,
+            deliveryWindow: o.deliveryWindow ?? undefined,
+            createdAt: o.createdAt,
         }));
+    }
+    async update(id, b, r) {
+        this.auth(r);
+        const o = await order_models_1.default.findByIdAndUpdate(id, b, { new: true });
+        if (!o) {
+            throw new Error("Order not found");
+        }
+        if (!o.phoneNumber) {
+            throw new Error("Phone number missing");
+        }
+        await (0, twilio_1.sendWhatsApp)(o.phoneNumber, `Order status: ${o.status}`);
+        return {
+            id: o._id.toString(),
+            phoneNumber: o.phoneNumber,
+            items: o.items,
+            subtotal: o.subtotal,
+            deliveryFee: o.deliveryFee,
+            total: o.total,
+            status: o.status,
+            deliveryType: o.deliveryType,
+            deliveryAddress: o.deliveryAddress,
+            pickupLocation: o.pickupLocation,
+            deliveryWindow: o.deliveryWindow,
+            createdAt: o.createdAt,
+        };
     }
 };
 exports.AdminController = AdminController;
@@ -77,21 +97,21 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "login", null);
 __decorate([
-    (0, tsoa_1.Put)("orders/{orderId}"),
-    __param(0, (0, tsoa_1.Path)()),
-    __param(1, (0, tsoa_1.Request)()),
-    __param(2, (0, tsoa_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], AdminController.prototype, "updateOrderStatus", null);
-__decorate([
     (0, tsoa_1.Get)("orders"),
     __param(0, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], AdminController.prototype, "getAllOrders", null);
+], AdminController.prototype, "get", null);
+__decorate([
+    (0, tsoa_1.Put)("orders/{id}"),
+    __param(0, (0, tsoa_1.Path)()),
+    __param(1, (0, tsoa_1.Body)()),
+    __param(2, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "update", null);
 exports.AdminController = AdminController = __decorate([
     (0, tsoa_1.Route)("admin"),
     (0, tsoa_1.Tags)("Admin")

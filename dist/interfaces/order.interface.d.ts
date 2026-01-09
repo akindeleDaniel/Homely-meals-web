@@ -1,4 +1,9 @@
-import { CartItem } from "./cart.interface";
+interface CartItem {
+    baseMeal?: string;
+    proteins?: string[];
+    combo?: string;
+    subtotal: number;
+}
 export interface Order {
     id: string;
     phoneNumber: string;
@@ -13,4 +18,5 @@ export interface Order {
     deliveryWindow?: string;
     createdAt: Date;
 }
+export {};
 //# sourceMappingURL=order.interface.d.ts.map

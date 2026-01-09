@@ -1,38 +1,52 @@
-import orderModel from "../models/order.models";
-import { DELIVERY_FEES, DELIVERY_WINDOW, DeliveryArea} from "../constants/delivery";
+import OrderSchema from "../models/order.models";
+import { DELIVERY_FEES, DELIVERY_WINDOW, DeliveryArea } from "../constants/delivery";
 
-interface PlaceOrderBody {
-    deliveryType: "pickup" | "delivery";
-    deliveryArea?: DeliveryArea;
-    deliveryAddress?: string;
+interface CreateOrderInput {
+  userEmail: string;
+  phoneNumber: string;
+  cart: any;
+  deliveryType: "pickup" | "delivery";
+  deliveryArea?: DeliveryArea;
+  deliveryAddress?: string;
 }
 
-export const OrderService = async (
-  user: any,
-  cart: any,
-  body: PlaceOrderBody
-) => {
-  let deliveryFee = 0;
+export const createOrder = async (input: CreateOrderInput) => {
+  let fee = 0;
 
-  if (body.deliveryType === "delivery") {
-      if (!body.deliveryAddress || !body.deliveryArea) {
-          throw new Error("Delivery address required");
-        }
-        deliveryFee = DELIVERY_FEES[body.deliveryArea];
-      }
+  if (input.deliveryType === "delivery") {
+    if (!input.deliveryArea || !input.deliveryAddress) {
+      throw new Error("Delivery info required");
+    }
+    fee = DELIVERY_FEES[input.deliveryArea];
+  }
 
-  return orderModel.create({
-    userEmail: user.email,
-    phoneNumber: user.phoneNumber,
-    items: cart,
-    subtotal: cart.subtotal,
-    deliveryFee,
-    total: cart.subtotal + deliveryFee,
-    deliveryType: body.deliveryType,
-    deliveryAddress: body.deliveryAddress,
+  const order = await OrderSchema.create({
+    userEmail: input.userEmail,
+    phoneNumber: input.phoneNumber,
+    items: input.cart,
+    subtotal: input.cart.subtotal,
+    deliveryFee: fee,
+    total: input.cart.subtotal + fee,
+    deliveryType: input.deliveryType,
+    deliveryAddress: input.deliveryAddress,
     pickupLocation:
-      body.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
+      input.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
     deliveryWindow: DELIVERY_WINDOW,
     status: "pending",
   });
+
+  return {
+    id: order._id.toString(),
+    phoneNumber: order.phoneNumber,
+    items: order.items,
+    subtotal: order.subtotal,
+    deliveryFee: order.deliveryFee,
+    total: order.total,
+    status: order.status,
+    deliveryType: order.deliveryType,
+    deliveryAddress: order.deliveryAddress,
+    pickupLocation: order.pickupLocation,
+    deliveryWindow: order.deliveryWindow,
+    createdAt: order.createdAt,
+  };
 };

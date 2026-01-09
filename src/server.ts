@@ -1,25 +1,19 @@
 import { app } from "./app";
 import { connectDB } from "./config/db";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import * as swaggerDocument from "./swagger/swagger.json";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const startServer = async () => {
-  try {
-    await connectDB()
-    console.log("MongoDB connected");
 
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Swagger docs on http://localhost:${PORT}/docs`);
-      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-    });
-  } catch (err) {
-    console.error(" DB connection failed:", err);
-    process.exit(1)
-  }
-};
-
-startServer();
+(async () => {
+  await connectDB();
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000")
+  console.log("Swagger docs on http://localhost:3000/docs")
+})
+})();

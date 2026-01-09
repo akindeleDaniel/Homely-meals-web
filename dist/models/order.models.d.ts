@@ -3,28 +3,28 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, {
@@ -33,14 +33,14 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -53,26 +53,26 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, mongoose.ResolveSchemaOptions<{
@@ -81,14 +81,14 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -102,14 +102,14 @@ declare const _default: mongoose.Model<{
         phoneNumber: string;
         userEmail: string;
         items: any;
+        subtotal: number;
+        deliveryFee: number;
+        total: number;
+        deliveryType: "pickup" | "delivery";
         status: "pending" | "confirmed" | "delivered";
-        subtotal?: number | null | undefined;
-        deliveryFee?: number | null | undefined;
-        total?: number | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
-        deliveryType?: "pickup" | "delivery" | null | undefined;
     } & mongoose.DefaultTimestampProps, {
         id: string;
     }, mongoose.ResolveSchemaOptions<{
@@ -118,14 +118,14 @@ declare const _default: mongoose.Model<{
         phoneNumber: string;
         userEmail: string;
         items: any;
+        subtotal: number;
+        deliveryFee: number;
+        total: number;
+        deliveryType: "pickup" | "delivery";
         status: "pending" | "confirmed" | "delivered";
-        subtotal?: number | null | undefined;
-        deliveryFee?: number | null | undefined;
-        total?: number | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
-        deliveryType?: "pickup" | "delivery" | null | undefined;
     } & mongoose.DefaultTimestampProps & {
         _id: mongoose.Types.ObjectId;
     } & {
@@ -137,14 +137,14 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
@@ -155,14 +155,14 @@ declare const _default: mongoose.Model<{
     phoneNumber: string;
     userEmail: string;
     items: any;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    deliveryType: "pickup" | "delivery";
     status: "pending" | "confirmed" | "delivered";
-    subtotal?: number | null | undefined;
-    deliveryFee?: number | null | undefined;
-    total?: number | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
-    deliveryType?: "pickup" | "delivery" | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {

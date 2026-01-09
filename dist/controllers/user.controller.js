@@ -14,160 +14,83 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var MainController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MainController = void 0;
 const tsoa_1 = require("tsoa");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_models_1 = __importDefault(require("../models/user.models"));
-const order_models_1 = __importDefault(require("../models/order.models"));
-const twilio_1 = require("../utils/twilio");
+const order_service_1 = require("../services/order.service");
 const cart_service_1 = require("../services/cart.service");
-const delivery_1 = require("../constants/delivery");
-let MainController = MainController_1 = class MainController extends tsoa_1.Controller {
-    verifyToken(req) {
+const twilio_1 = require("../utils/twilio");
+let MainController = class MainController extends tsoa_1.Controller {
+    auth(req) {
         const authHeader = req.headers.authorization;
-        if (!authHeader)
-            throw new Error("Authorization header missing");
+        if (!authHeader) {
+            throw new Error("No authorization header");
+        }
         const token = authHeader.split(" ")[1];
-        if (!token)
-            throw new Error("Token missing");
+        if (!token) {
+            throw new Error("No token provided");
+        }
         return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
     }
-    isOrderWindowOpen() {
-        const now = new Date();
-        const day = now.getDay();
-        const hour = now.getHours();
-        if (day === 1 && hour >= 7)
-            return true;
-        if (day === 2)
-            return true;
-        if (day === 3 && hour < 7)
-            return true;
-        return false;
+    async register(b) {
+        b.password = await bcrypt_1.default.hash(b.password, 10);
+        await user_models_1.default.create(b);
+        return { message: "Registered" };
     }
-    async getLanding() {
+    async login(b) {
+        const u = await user_models_1.default.findOne({ email: b.email });
+        if (!u || !u.password) {
+            return { message: "Invalid credentials" };
+        }
+        const ok = await bcrypt_1.default.compare(b.password, u.password);
+        if (!ok) {
+            return { message: "Invalid credentials" };
+        }
         return {
-            message: "Welcome to Homely Meals Wednesday Specials",
-            actions: [
-                { type: "button", text: "Register", link: "/main/register" },
-                { type: "button", text: "Login", link: "/main/login" },
-            ],
-            deliveryWindow: "Wednesday 2:00 PM – 5:00 PM",
-            deliveryFees: {
-                gk: 500,
-                "outside-gk": 1500
-            }
+            token: jsonwebtoken_1.default.sign({ email: u.email }, process.env.JWT_SECRET, {
+                expiresIn: "1d",
+            }),
         };
     }
-    async register(body) {
-        const existingUser = await user_models_1.default.findOne({ email: body.email });
-        if (existingUser) {
-            return { message: "User already exists" };
-        }
-        const hashedPassword = await bcrypt_1.default.hash(body.password, 10);
-        await user_models_1.default.create({
-            firstName: body.firstName,
-            lastName: body.lastName,
-            email: body.email,
-            phoneNumber: body.phoneNumber,
-            password: hashedPassword,
-        });
-        return {
-            message: "User registered successfully",
-            user: { email: body.email,
-                firstName: body.firstName,
-                lastName: body.lastName },
-        };
+    addCart(b, r) {
+        return cart_service_1.CartService.add(this.auth(r).email, b);
     }
-    async login(body) {
-        const user = await user_models_1.default.findOne({ email: body.email });
-        if (!user)
-            return { message: "Invalid email or password" };
-        const match = await bcrypt_1.default.compare(body.password, user.password);
-        if (!match)
-            return { message: "Invalid email or password" };
-        const token = jsonwebtoken_1.default.sign({ email: user.email, firstName: user.firstName }, process.env.JWT_SECRET, { expiresIn: "1d" });
-        return { message: `Welcome back, ${user.firstName}!`, token };
-    }
-    async addToCart(body, req) {
-        const user = this.verifyToken(req);
-        return cart_service_1.CartService.add(user.email, body);
-    }
-    async getCart(req) {
-        const user = this.verifyToken(req);
-        return MainController_1.carts[user.email] || { message: "Cart is empty" };
-    }
-    async clearCart(req) {
-        const user = this.verifyToken(req);
-        delete MainController_1.carts[user.email];
-        return { message: "Cart cleared" };
-    }
-    async placeOrder(body, req) {
-        const user = this.verifyToken(req);
-        if (!this.isOrderWindowOpen()) {
-            return {
-                message: "Ordering is open from Monday 7:00 AM to Wednesday 7:00 AM only.",
-            };
-        }
-        const cart = MainController_1.carts[user.email];
+    async place(b, r) {
+        const user = this.auth(r);
+        const cart = cart_service_1.CartService.get(user.email);
         if (!cart) {
-            return { message: "Cart is empty. Add items before placing an order." };
+            throw new Error("Cart is empty");
         }
-        const dbUser = await user_models_1.default.findOne({ email: user.email });
-        if (!dbUser) {
-            return { message: "User not found." };
-        }
-        let deliveryFee = 0;
-        if (body.deliveryType === "delivery") {
-            if (!body.deliveryAddress || !body.deliveryArea) {
-                return { message: "Delivery address is required for home delivery." };
-            }
-            deliveryFee = delivery_1.DELIVERY_FEES[body.deliveryArea] || 0;
-        }
-        const total = cart.subtotal + deliveryFee;
-        const order = await order_models_1.default.create({
-            userEmail: dbUser.email,
-            phoneNumber: dbUser.phoneNumber,
-            items: cart,
-            subtotal: cart.subtotal,
-            deliveryFee,
-            total,
-            deliveryType: body.deliveryType,
-            deliveryAddress: body.deliveryAddress,
-            pickupLocation: body.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
-            deliveryWindow: "Wednesday 2:00 PM – 5:00 PM",
-            status: "pending",
+        const order = await (0, order_service_1.createOrder)({
+            userEmail: user.email,
+            phoneNumber: user.phoneNumber,
+            cart,
+            deliveryType: b.deliveryType,
+            deliveryAddress: b.deliveryAddress,
+            deliveryArea: b.deliveryArea,
         });
-        await (0, twilio_1.sendWhatsApp)(user.phoneNumber, `Hi ${user.firstName}, your order has been placed successfully!
-   Status: ${order.status}.
-   We will notify you once it's confirmed. Thank you for choosing Homely Meals!`);
-        delete MainController_1.carts[user.email];
+        await (0, twilio_1.sendWhatsApp)(user.phoneNumber, `Order received. Status: pending`);
+        cart_service_1.CartService.clear(user.email);
         return {
-            id: order._id.toString(),
+            id: order.id.toString(),
             phoneNumber: order.phoneNumber,
-            items: cart,
-            subtotal: cart.subtotal,
-            deliveryFee,
-            total,
+            items: order.items,
+            subtotal: order.subtotal,
+            deliveryFee: order.deliveryFee,
+            total: order.total,
             status: order.status,
-            deliveryType: body.deliveryType,
-            deliveryAddress: order.deliveryAddress || undefined,
-            pickupLocation: order.pickupLocation || undefined,
+            deliveryType: order.deliveryType,
+            deliveryAddress: order.deliveryAddress ?? undefined,
+            pickupLocation: order.pickupLocation ?? undefined,
             deliveryWindow: order.deliveryWindow ?? undefined,
             createdAt: order.createdAt,
         };
     }
 };
 exports.MainController = MainController;
-MainController.carts = {};
-__decorate([
-    (0, tsoa_1.Get)("landing"),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], MainController.prototype, "getLanding", null);
 __decorate([
     (0, tsoa_1.Post)("register"),
     __param(0, (0, tsoa_1.Body)()),
@@ -188,22 +111,8 @@ __decorate([
     __param(1, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], MainController.prototype, "addToCart", null);
-__decorate([
-    (0, tsoa_1.Get)("cart"),
-    __param(0, (0, tsoa_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], MainController.prototype, "getCart", null);
-__decorate([
-    (0, tsoa_1.Post)("cart/clear"),
-    __param(0, (0, tsoa_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], MainController.prototype, "clearCart", null);
+    __metadata("design:returntype", void 0)
+], MainController.prototype, "addCart", null);
 __decorate([
     (0, tsoa_1.Post)("order/place"),
     __param(0, (0, tsoa_1.Body)()),
@@ -211,8 +120,8 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], MainController.prototype, "placeOrder", null);
-exports.MainController = MainController = MainController_1 = __decorate([
+], MainController.prototype, "place", null);
+exports.MainController = MainController = __decorate([
     (0, tsoa_1.Route)("main"),
     (0, tsoa_1.Tags)("Main")
 ], MainController);
