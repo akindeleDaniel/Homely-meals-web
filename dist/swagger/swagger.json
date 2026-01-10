@@ -7,6 +7,61 @@
         "requestBodies": {},
         "responses": {},
         "schemas": {
+            "Protein": {
+                "type": "string",
+                "enum": [
+                    "Egg",
+                    "Beef",
+                    "Fish",
+                    "Plantain + Fish",
+                    "Chicken",
+                    "Sardine",
+                    "coleslaw"
+                ],
+                "nullable": false
+            },
+            "Combo": {
+                "type": "string",
+                "enum": [
+                    "Stir-Fried Spag + Sardine & Fried Fish",
+                    "Stir-Fried Spag + Egg & Fried Fish",
+                    "Stir-Fried Spag + Egg",
+                    "Stir-Fried Spag + Beef",
+                    "Stir-Fried Spag + Fish & Plantain",
+                    "Stir-Fried Spag + Dodo & Beef"
+                ],
+                "nullable": false
+            },
+            "Cart": {
+                "properties": {
+                    "baseMeal": {
+                        "type": "string"
+                    },
+                    "proteins": {
+                        "items": {
+                            "$ref": "#/components/schemas/Protein"
+                        },
+                        "type": "array"
+                    },
+                    "combo": {
+                        "$ref": "#/components/schemas/Combo"
+                    },
+                    "subtotal": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "currency": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "baseMeal",
+                    "subtotal",
+                    "currency"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
             "CartItem": {
                 "properties": {
                     "baseMeal": {
@@ -220,7 +275,9 @@
                         "description": "Ok",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
                             }
                         }
                     }
@@ -234,7 +291,20 @@
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {}
+                            "schema": {
+                                "properties": {
+                                    "combo": {
+                                        "$ref": "#/components/schemas/Combo"
+                                    },
+                                    "proteins": {
+                                        "items": {
+                                            "$ref": "#/components/schemas/Protein"
+                                        },
+                                        "type": "array"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
                 }
@@ -242,7 +312,7 @@
         },
         "/main/order": {
             "post": {
-                "operationId": "Place",
+                "operationId": "CreateOrder",
                 "responses": {
                     "200": {
                         "description": "Ok",

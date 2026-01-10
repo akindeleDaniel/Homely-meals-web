@@ -10,6 +10,28 @@ const menu_controller_1 = require("./../controllers/menu.controller");
 const admin_controller_1 = require("./../controllers/admin.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const models = {
+    "Protein": {
+        "dataType": "refAlias",
+        "type": { "dataType": "enum", "enums": ["Egg", "Beef", "Fish", "Plantain + Fish", "Chicken", "Sardine", "coleslaw"], "validators": {} },
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Combo": {
+        "dataType": "refAlias",
+        "type": { "dataType": "enum", "enums": ["Stir-Fried Spag + Sardine & Fried Fish", "Stir-Fried Spag + Egg & Fried Fish", "Stir-Fried Spag + Egg", "Stir-Fried Spag + Beef", "Stir-Fried Spag + Fish & Plantain", "Stir-Fried Spag + Dodo & Beef"], "validators": {} },
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Cart": {
+        "dataType": "refObject",
+        "properties": {
+            "baseMeal": { "dataType": "string", "required": true },
+            "proteins": { "dataType": "array", "array": { "dataType": "refAlias", "ref": "Protein" } },
+            "combo": { "ref": "Combo" },
+            "subtotal": { "dataType": "double", "required": true },
+            "currency": { "dataType": "string", "required": true },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CartItem": {
         "dataType": "refObject",
         "properties": {
@@ -105,7 +127,7 @@ function RegisterRoutes(app) {
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     const argsMainController_addCart = {
-        b: { "in": "body", "name": "b", "required": true, "dataType": "any" },
+        b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "combo": { "ref": "Combo" }, "proteins": { "dataType": "array", "array": { "dataType": "refAlias", "ref": "Protein" } } } },
         r: { "in": "request", "name": "r", "required": true, "dataType": "object" },
     };
     app.post('/main/cart/add', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.addCart)), async function MainController_addCart(request, response, next) {
@@ -128,18 +150,19 @@ function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    const argsMainController_place = {
-        b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "deliveryAddress": { "dataType": "string" }, "deliveryArea": { "ref": "DeliveryArea" }, "deliveryType": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["pickup"] }, { "dataType": "enum", "enums": ["delivery"] }], "required": true } } },
+    const argsMainController_createOrder = {
+        req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
+        body: { "in": "body", "name": "body", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "deliveryAddress": { "dataType": "string" }, "deliveryArea": { "ref": "DeliveryArea" }, "deliveryType": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["pickup"] }, { "dataType": "enum", "enums": ["delivery"] }], "required": true } } },
         r: { "in": "request", "name": "r", "required": true, "dataType": "object" },
     };
-    app.post('/main/order', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.place)), async function MainController_place(request, response, next) {
+    app.post('/main/order', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.createOrder)), async function MainController_createOrder(request, response, next) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         let validatedArgs = [];
         try {
-            validatedArgs = templateService.getValidatedArgs({ args: argsMainController_place, request, response });
+            validatedArgs = templateService.getValidatedArgs({ args: argsMainController_createOrder, request, response });
             const controller = new user_controller_1.MainController();
             await templateService.apiHandler({
-                methodName: 'place',
+                methodName: 'createOrder',
                 controller,
                 response,
                 next,

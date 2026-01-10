@@ -2,18 +2,16 @@ import { Controller, Route, Tags, Post, Body, Request } from "tsoa";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.models";
-import {createOrder} from "../services/order.service";
 import { Order as OrderDTO } from "../interfaces/order.interface";
 import { CartService } from "../services/cart.service";
 import {DeliveryArea } from "../constants/delivery";
 import {Telegram} from "../utils/telegram";
 import dotenv from "dotenv";
-import { PROTEIN_PRICES,COMBO_PRICES } from "../constants/prices";
+import {Protein, Combo} from "../services/cart.service";
+import OrderModel from "../models/order.models";
+import UserModel from "../models/user.models";
 
 dotenv.config();
-type Protein = keyof typeof PROTEIN_PRICES;
-type Combo = keyof typeof COMBO_PRICES;
-
 @Route("main")
 @Tags("Main")
 export class MainController extends Controller {
@@ -29,7 +27,6 @@ export class MainController extends Controller {
     }
     return jwt.verify(token, process.env.JWT_SECRET!) as {
       email: string;
-      phoneNumber: string;
     };
   }
 
@@ -64,36 +61,56 @@ if (!ok) {
     proteins?: Protein[];
     combo?: Combo;
   }, @Request() r: any) {
-    return CartService.add(this.auth(r).email, b);
+    const user = this.auth(r);
+    return CartService.add(user.email, b);
   }
 
   @Post("order")
-  async place(@Body() b: {
+  public async createOrder(
+    @Request() req:any, 
+    @Body() body: {
     deliveryType: "pickup" | "delivery";
     deliveryArea?: DeliveryArea;
     deliveryAddress?: string;
   },
    @Request() r: any
 ): Promise<OrderDTO> {
-    const user = this.auth(r);
-    const cart = CartService.get(user.email);
+    const authUser = this.auth(req);
+    const user = await UserModel.findOne({email:authUser.email});
 
+if (!user) {
+  throw new Error("User not found");
+}
+;
+    const cart = CartService.get(user.email!);
     if (!cart) {
       throw new Error("Cart is empty");
     }
 
-    const order = await createOrder({
-      userEmail: user.email,
-      phoneNumber: user.phoneNumber,
-      cart,
-      deliveryType: b.deliveryType,
-      deliveryAddress: b.deliveryAddress,
-      deliveryArea: b.deliveryArea,
-    });
+    const total = cart.subtotal
+    const items = cart.proteins?.length
+    ? cart.proteins
+    : cart.combo
+    ? [cart.combo]
+    : [cart.baseMeal];
+
+  const order = new OrderModel({
+    user: user._id,
+    phoneNumber: user.phoneNumber, 
+    deliveryType: body.deliveryType,
+    deliveryArea: body.deliveryArea,
+    deliveryAddress: body.deliveryAddress,
+    items,
+    subtotal: cart.subtotal,
+    total,
+  });
+
+  await order.save()
 
     const itemsText = 
-    cart.proteins.join(", ")??
-    cart.combo??
+    cart.proteins && cart.proteins.length ?
+    cart.proteins.join(", ")
+    : cart.combo ??
      cart.baseMeal ?? 
      "No items";
 
@@ -112,7 +129,7 @@ if (!ok) {
    
     await Telegram(message);
 
-      CartService.clear(user.email);
+      CartService.clear(user.email!);
     return {
       id: order.id.toString(),
       phoneNumber: order.phoneNumber,

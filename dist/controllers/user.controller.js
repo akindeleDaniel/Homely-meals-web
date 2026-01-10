@@ -20,10 +20,11 @@ const tsoa_1 = require("tsoa");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_models_1 = __importDefault(require("../models/user.models"));
-const order_service_1 = require("../services/order.service");
 const cart_service_1 = require("../services/cart.service");
 const telegram_1 = require("../utils/telegram");
 const dotenv_1 = __importDefault(require("dotenv"));
+const order_models_1 = __importDefault(require("../models/order.models"));
+const user_models_2 = __importDefault(require("../models/user.models"));
 dotenv_1.default.config();
 let MainController = class MainController extends tsoa_1.Controller {
     auth(req) {
@@ -58,26 +59,42 @@ let MainController = class MainController extends tsoa_1.Controller {
         };
     }
     addCart(b, r) {
-        return cart_service_1.CartService.add(this.auth(r).email, b);
-    }
-    async place(b, r) {
         const user = this.auth(r);
+        return cart_service_1.CartService.add(user.email, b);
+    }
+    async createOrder(req, body, r) {
+        const authUser = this.auth(req);
+        const user = await user_models_2.default.findOne({ email: authUser.email });
+        if (!user) {
+            throw new Error("User not found");
+        }
+        ;
         const cart = cart_service_1.CartService.get(user.email);
         if (!cart) {
             throw new Error("Cart is empty");
         }
-        const order = await (0, order_service_1.createOrder)({
-            userEmail: user.email,
+        const total = cart.subtotal;
+        const items = cart.proteins?.length
+            ? cart.proteins
+            : cart.combo
+                ? [cart.combo]
+                : [cart.baseMeal];
+        const order = new order_models_1.default({
+            user: user._id,
             phoneNumber: user.phoneNumber,
-            cart,
-            deliveryType: b.deliveryType,
-            deliveryAddress: b.deliveryAddress,
-            deliveryArea: b.deliveryArea,
+            deliveryType: body.deliveryType,
+            deliveryArea: body.deliveryArea,
+            deliveryAddress: body.deliveryAddress,
+            items,
+            subtotal: cart.subtotal,
+            total,
         });
-        const itemsText = cart.proteins.join(", ") ??
-            cart.combo ??
-            cart.baseMeal ??
-            "No items";
+        await order.save();
+        const itemsText = cart.proteins && cart.proteins.length ?
+            cart.proteins.join(", ")
+            : cart.combo ??
+                cart.baseMeal ??
+                "No items";
         const message = `
         🍔 *NEW ORDER*
         👤 User: ${user.email}
@@ -133,12 +150,13 @@ __decorate([
 ], MainController.prototype, "addCart", null);
 __decorate([
     (0, tsoa_1.Post)("order"),
-    __param(0, (0, tsoa_1.Body)()),
-    __param(1, (0, tsoa_1.Request)()),
+    __param(0, (0, tsoa_1.Request)()),
+    __param(1, (0, tsoa_1.Body)()),
+    __param(2, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
-], MainController.prototype, "place", null);
+], MainController.prototype, "createOrder", null);
 exports.MainController = MainController = __decorate([
     (0, tsoa_1.Route)("main"),
     (0, tsoa_1.Tags)("Main")

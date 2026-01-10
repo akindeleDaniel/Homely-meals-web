@@ -1,6 +1,7 @@
 import { Controller } from "tsoa";
 import { Order as OrderDTO } from "../interfaces/order.interface";
 import { DeliveryArea } from "../constants/delivery";
+import { Protein, Combo } from "../services/cart.service";
 export declare class MainController extends Controller {
     private auth;
     register(b: any): Promise<{
@@ -13,8 +14,11 @@ export declare class MainController extends Controller {
         token: string;
         message?: undefined;
     }>;
-    addCart(b: any, r: any): any;
-    place(b: {
+    addCart(b: {
+        proteins?: Protein[];
+        combo?: Combo;
+    }, r: any): import("../services/cart.service").Cart;
+    createOrder(req: any, body: {
         deliveryType: "pickup" | "delivery";
         deliveryArea?: DeliveryArea;
         deliveryAddress?: string;

@@ -1,7 +1,7 @@
 import { PROTEIN_PRICES, COMBO_PRICES } from "../constants/prices";
-type Protein = keyof typeof PROTEIN_PRICES;
-type Combo = keyof typeof COMBO_PRICES;
-interface Cart {
+export type Protein = keyof typeof PROTEIN_PRICES;
+export type Combo = keyof typeof COMBO_PRICES;
+export interface Cart {
     baseMeal: string;
     proteins?: Protein[];
     combo?: Combo;
@@ -17,5 +17,4 @@ export declare class CartService {
         combo?: Combo;
     }): Cart;
 }
-export {};
 //# sourceMappingURL=cart.service.d.ts.map
