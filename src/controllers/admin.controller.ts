@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Admin from "../models/admin.model";
 import Order from "../models/order.models";
-import { sendWhatsApp } from "../utils/twilio";
+import { Telegram } from "../utils/telegram";
 
 @Route("admin")
 @Tags("Admin")
@@ -71,7 +71,7 @@ export class AdminController extends Controller {
     if (!o.phoneNumber) {
       throw new Error("Phone number missing");
     }
-    await sendWhatsApp(o.phoneNumber, `Order status: ${o.status}`);
+    await Telegram(`Order status: ${o.status}`);
     return {
     id: o._id.toString(),
     phoneNumber: o.phoneNumber,

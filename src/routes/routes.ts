@@ -168,7 +168,7 @@ export function RegisterRoutes(app: Router) {
                 b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"deliveryAddress":{"dataType":"string"},"deliveryArea":{"ref":"DeliveryArea"},"deliveryType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pickup"]},{"dataType":"enum","enums":["delivery"]}],"required":true}}},
                 r: {"in":"request","name":"r","required":true,"dataType":"object"},
         };
-        app.post('/main/order/place',
+        app.post('/main/order',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
             ...(fetchMiddlewares<RequestHandler>(MainController.prototype.place)),
 

@@ -49,5 +49,5 @@
     "moduleResolution": "nodenext",
     "typeRoots":["./node_modules/@types", "./types"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/sendOrderTest.ts"]
 }

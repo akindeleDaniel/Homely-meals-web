@@ -21,7 +21,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const admin_model_1 = __importDefault(require("../models/admin.model"));
 const order_models_1 = __importDefault(require("../models/order.models"));
-const twilio_1 = require("../utils/twilio");
+const telegram_1 = require("../utils/telegram");
 let AdminController = class AdminController extends tsoa_1.Controller {
     auth(req) {
         const token = req.headers.authorization?.split(" ")[1];
@@ -71,7 +71,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         if (!o.phoneNumber) {
             throw new Error("Phone number missing");
         }
-        await (0, twilio_1.sendWhatsApp)(o.phoneNumber, `Order status: ${o.status}`);
+        await (0, telegram_1.Telegram)(`Order status: ${o.status}`);
         return {
             id: o._id.toString(),
             phoneNumber: o.phoneNumber,

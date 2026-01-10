@@ -240,7 +240,7 @@
                 }
             }
         },
-        "/main/order/place": {
+        "/main/order": {
             "post": {
                 "operationId": "Place",
                 "responses": {

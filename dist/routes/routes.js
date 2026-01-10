@@ -132,7 +132,7 @@ function RegisterRoutes(app) {
         b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "deliveryAddress": { "dataType": "string" }, "deliveryArea": { "ref": "DeliveryArea" }, "deliveryType": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["pickup"] }, { "dataType": "enum", "enums": ["delivery"] }], "required": true } } },
         r: { "in": "request", "name": "r", "required": true, "dataType": "object" },
     };
-    app.post('/main/order/place', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.place)), async function MainController_place(request, response, next) {
+    app.post('/main/order', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.place)), async function MainController_place(request, response, next) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         let validatedArgs = [];
         try {

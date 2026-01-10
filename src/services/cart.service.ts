@@ -1,24 +1,51 @@
 import { BASE_PRICE, PROTEIN_PRICES, COMBO_PRICES } from "../constants/prices";
 
-const carts: Record<string, any> = {};
+type Protein = keyof typeof PROTEIN_PRICES;
+type Combo = keyof typeof COMBO_PRICES;
 
-export const CartService = {
-  add(email: string, body: any) {
-    let subtotal = body.combo
-      ? COMBO_PRICES[body.combo]
-      : BASE_PRICE +
-        (body.proteins || []).reduce(
-          (s: number, p: string) => s + (PROTEIN_PRICES[p] || 0),
-          0
+interface Cart{
+  baseMeal: string;
+  proteins?: Protein[];
+  combo?: Combo;
+  subtotal: number;
+  currency: string;
+}
+export class CartService  {
+  private static carts = new Map<string, Cart>();
+  
+  static get(email: string): Cart | undefined {
+    return this.carts.get(email)
+  };
+  static clear(email:string){
+    this.carts.delete(email);
+  }
+
+  static add(email: string, 
+    body: { proteins?: Protein[]; combo?: Combo }
+  ): Cart { 
+    let subtotal = BASE_PRICE
+
+      if (body.combo){
+        subtotal += COMBO_PRICES[body.combo] ;
+      }
+      if (body.proteins?.length){
+        subtotal += body.proteins.reduce(
+          (
+            sum,p
+          ) => {
+            return sum + PROTEIN_PRICES[p] ,
+           }, 0
         );
+      }
 
-    carts[email] = { ...body, subtotal };
-    return carts[email];
-  },
-  get(email: string) {
-    return carts[email];
-  },
-  clear(email: string) {
-    delete carts[email];
-  },
-};
+    const cart: Cart = {
+      baseMeal: "Stir-Fried Spaghetti",
+      proteins: body.proteins,
+      combo: body.combo,
+      subtotal,
+      currency: "₦"
+    };
+    this.carts.set(email,cart)
+    return cart
+  }
+} 

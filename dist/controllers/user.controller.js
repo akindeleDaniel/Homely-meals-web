@@ -22,7 +22,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_models_1 = __importDefault(require("../models/user.models"));
 const order_service_1 = require("../services/order.service");
 const cart_service_1 = require("../services/cart.service");
-const twilio_1 = require("../utils/twilio");
+const telegram_1 = require("../utils/telegram");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 let MainController = class MainController extends tsoa_1.Controller {
     auth(req) {
         const authHeader = req.headers.authorization;
@@ -72,7 +74,23 @@ let MainController = class MainController extends tsoa_1.Controller {
             deliveryAddress: b.deliveryAddress,
             deliveryArea: b.deliveryArea,
         });
-        await (0, twilio_1.sendWhatsApp)(user.phoneNumber, `Order received. Status: pending`);
+        const itemsText = cart.proteins.join(", ") ??
+            cart.combo ??
+            cart.baseMeal ??
+            "No items";
+        const message = `
+        🍔 *NEW ORDER*
+        👤 User: ${user.email}
+        📞 Phone: ${user.phoneNumber}
+        🍽 Items: ${itemsText}
+        💰 Subtotal: ₦${cart.subtotal}
+        🚚 Delivery Fee: ₦${order.deliveryFee}
+        🧾 Total: ₦${order.total}
+        📦 Type: ${order.deliveryType}
+        📍 Address: ${order.deliveryAddress ?? "Pickup: Perfect Touch (GK)"}
+        ⏳ Status: ${order.status}
+      `;
+        await (0, telegram_1.Telegram)(message);
         cart_service_1.CartService.clear(user.email);
         return {
             id: order.id.toString(),
@@ -114,7 +132,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], MainController.prototype, "addCart", null);
 __decorate([
-    (0, tsoa_1.Post)("order/place"),
+    (0, tsoa_1.Post)("order"),
     __param(0, (0, tsoa_1.Body)()),
     __param(1, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),

@@ -1,10 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { app } from "./app";
 import { connectDB } from "./config/db";
-import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "./swagger/swagger.json";
 
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

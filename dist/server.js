@@ -36,12 +36,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const app_1 = require("./app");
 const db_1 = require("./config/db");
-const dotenv_1 = __importDefault(require("dotenv"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swaggerDocument = __importStar(require("./swagger/swagger.json"));
-dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 app_1.app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocument));
 (async () => {
