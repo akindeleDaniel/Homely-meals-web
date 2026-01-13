@@ -1,52 +1,85 @@
-import { BASE_PRICE, PROTEIN_PRICES, COMBO_PRICES } from "../constants/prices";
+import { BASE_PRICE, PROTEIN_PRICES, COMBO_PRICES, Protein, Combo } from "../constants/prices";
 
-export type Protein = keyof typeof PROTEIN_PRICES;
-export type Combo = keyof typeof COMBO_PRICES;
+
+
+export type proteinItems = {
+  name: Protein;
+  quantity: number;
+};
+
+export type comboItems = {
+  name: Combo;
+  quantity: number;
+};
 
 export interface Cart {
-  baseMeal: string;
-  proteins?: Protein[];
-  combo?: Combo;
+  items:{
+    proteins?: proteinItems[];
+    combos?: comboItems[];
+  }
   subtotal: number;
   currency: string;
+  itemsText: string;
 }
 
 export class CartService {
-  private static carts = new Map<string, Cart>();
+  private static cart: Cart | null = null;
 
-  static get(email: string): Cart | undefined {
-    return this.carts.get(email);
-  }
+  static add(input: {
+    proteins?: proteinItems[];
+    combos?: comboItems[];
+  }): Cart {
 
-  static clear(email: string) {
-    this.carts.delete(email);
-  }
-
-  static add(
-    email: string,
-    body: { proteins?: Protein[]; combo?: Combo }
-  ): Cart {
-    let subtotal = BASE_PRICE;
-
-    if (body.combo) {
-      subtotal = COMBO_PRICES[body.combo]!;
+    if (!input.combos && !input.proteins) {
+      throw new Error("No items in cart");
     }
 
-    if (body.proteins?.length) {
-      subtotal += body.proteins.reduce((sum, p) => {
-        return sum + PROTEIN_PRICES[p]!;
-      }, 0);
+    if (!input.combos && input.proteins) {
+      throw new Error("Cannot mix proteins and combos");
     }
 
-    const cart: Cart = {
-      baseMeal: "Stir-Fried Spaghetti",
-      proteins: body.proteins,
-      combo: body.combo,
+    let subtotal = 0
+    let itemsText = "";
+
+    if (input.proteins){
+      subtotal = BASE_PRICE;
+
+      itemsText = input.proteins
+        .map(p => {
+          if (p.quantity <= 0){
+            throw new Error(`Invalid quantity for protein ${p.name}`);
+          }
+        subtotal += PROTEIN_PRICES[p.name] * p.quantity;
+        return `${p.quantity} x ${p.name}`;
+      }).join(", ");
+    }
+
+    if (input.combos) {
+      itemsText = input.combos
+        .map(c => {
+          if (c.quantity <= 0){
+            throw new Error(`Invalid quantity for combo ${c.name}`);
+          }
+        subtotal += COMBO_PRICES[c.name] * c.quantity;
+        return `${c.quantity} x ${c.name}`;
+      }).join(", ");
+    }
+    this.cart = {
+      items: input,
       subtotal,
       currency: "₦",
+      itemsText,
     };
-
-    this.carts.set(email, cart);
-    return cart;
+    return this.cart;
+  }
+  static get(): Cart {
+    if(!this.cart){
+      throw new Error("Cart is empty");
+    }
+    return this.cart;
+  }
+  static clear(){
+    this.cart = null
   }
 }
+

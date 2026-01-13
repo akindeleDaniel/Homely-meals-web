@@ -81,7 +81,7 @@ function RegisterRoutes(app) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
     const argsMainController_register = {
-        b: { "in": "body", "name": "b", "required": true, "dataType": "any" },
+        b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "lastName": { "dataType": "string", "required": true }, "firstName": { "dataType": "string", "required": true }, "password": { "dataType": "string", "required": true }, "email": { "dataType": "string", "required": true } } },
     };
     app.post('/main/register', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.MainController.prototype.register)), async function MainController_register(request, response, next) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

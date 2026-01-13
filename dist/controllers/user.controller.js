@@ -28,15 +28,25 @@ const user_models_2 = __importDefault(require("../models/user.models"));
 dotenv_1.default.config();
 let MainController = class MainController extends tsoa_1.Controller {
     auth(req) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            throw new Error("No authorization header");
+        try {
+            const authHeader = req.headers.authorization;
+            if (!authHeader) {
+                throw new Error("No authorization header");
+            }
+            console.log("AUTH HEADER:", req.headers.authorization);
+            const token = authHeader.split(" ")[1];
+            if (!token) {
+                throw new Error("No token provided");
+            }
+            if (!process.env.JWT_SECRET) {
+                throw new Error("JWT_SECRET not set");
+            }
+            return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         }
-        const token = authHeader.split(" ")[1];
-        if (!token) {
-            throw new Error("No token provided");
+        catch (err) {
+            console.error("JWT AUTH ERROR:", err);
+            throw err;
         }
-        return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
     }
     async register(b) {
         b.password = await bcrypt_1.default.hash(b.password, 10);

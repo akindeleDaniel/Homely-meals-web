@@ -96,7 +96,7 @@ export function RegisterRoutes(app: Router) {
 
     
         const argsMainController_register: Record<string, TsoaRoute.ParameterSchema> = {
-                b: {"in":"body","name":"b","required":true,"dataType":"any"},
+                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"lastName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
         };
         app.post('/main/register',
             ...(fetchMiddlewares<RequestHandler>(MainController)),

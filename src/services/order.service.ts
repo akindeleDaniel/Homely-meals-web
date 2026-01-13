@@ -1,51 +1,53 @@
 import OrderSchema from "../models/order.models";
 import { DELIVERY_FEES, DELIVERY_WINDOW, DeliveryArea } from "../constants/delivery";
+import { CartService } from "./cart.service";
 
 interface CreateOrderInput {
-  userEmail: string;
   phoneNumber: string;
-  cart: any;
   deliveryType: "pickup" | "delivery";
   deliveryArea?: DeliveryArea;
   deliveryAddress?: string;
 }
 
 export const createOrder = async (input: CreateOrderInput) => {
-  let fee = 0;
+  const cart = CartService.get();
+  let deliveryFee = 0;
 
   if (input.deliveryType === "delivery") {
     if (!input.deliveryArea || !input.deliveryAddress) {
-      throw new Error("Delivery info required");
+      throw new Error("Delivery address and area required");
     }
-    fee = DELIVERY_FEES[input.deliveryArea];
+    deliveryFee = DELIVERY_FEES[input.deliveryArea];
   }
 
+  const total = cart.subtotal + deliveryFee;
+
   const order = await OrderSchema.create({
-    userEmail: input.userEmail,
     phoneNumber: input.phoneNumber,
-    items: input.cart,
-    subtotal: input.cart.subtotal,
-    deliveryFee: fee,
-    total: input.cart.subtotal + fee,
+    items: cart.items,
+    subtotal: cart.subtotal,
     deliveryType: input.deliveryType,
+    deliveryFee,
     deliveryAddress: input.deliveryAddress,
     pickupLocation:
-      input.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
+    input.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
+    total,
     deliveryWindow: DELIVERY_WINDOW,
     status: "pending",
   });
 
+  CartService.clear();
+
   return {
-    id: order._id.toString(),
     phoneNumber: order.phoneNumber,
     items: order.items,
     subtotal: order.subtotal,
-    deliveryFee: order.deliveryFee,
-    total: order.total,
-    status: order.status,
     deliveryType: order.deliveryType,
     deliveryAddress: order.deliveryAddress,
     pickupLocation: order.pickupLocation,
+    deliveryFee: order.deliveryFee,
+    total: order.total,
+    status: order.status,
     deliveryWindow: order.deliveryWindow,
     createdAt: order.createdAt,
   };

@@ -4,7 +4,12 @@ import { DeliveryArea } from "../constants/delivery";
 import { Protein, Combo } from "../services/cart.service";
 export declare class MainController extends Controller {
     private auth;
-    register(b: any): Promise<{
+    register(b: {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+    }): Promise<{
         message: string;
     }>;
     login(b: any): Promise<{
