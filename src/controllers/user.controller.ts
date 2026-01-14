@@ -4,8 +4,8 @@ import User from "../models/user.models";
 import { proteinItems, comboItems, CartService } from "../services/cart.service";
 import {Telegram} from "../utils/telegram";
 import dotenv from "dotenv";
-import { DeliveryArea } from "../constants/delivery";
 import { createOrder } from "../services/order.service";
+import type { OrderDTO } from "../interfaces/order.interface";
 
 dotenv.config();
 @Route("main")
@@ -55,29 +55,24 @@ if (!ok) {
   @Post("order")
   public async placeOrder(
     @Body()
-    body: {
-    phoneNumber: string;
-    deliveryType: "pickup" | "delivery";
-    deliveryArea?: DeliveryArea;
-    deliveryAddress?: string;
-  }
-) {
+    body: OrderDTO
+):Promise<{message:string}> {
   if (!body.phoneNumber) {
     throw new Error("Phone number is required");
   }
 
-    const order = await createOrder(body);
-    const itemsText = [
-  ...(order.items!.proteins ?? []).map(
-    p => `${p.quantity} x ${p.name}`
-  ),
-  ...(order.items!.combos ?? []).map(
-    c => `${c.quantity} x ${c.name}`
-  ),
-].join(", ");
+    const order = await createOrder({
+      phoneNumber:body.phoneNumber,
+      deliveryType:body.deliveryType,
+      deliveryArea:body.deliveryArea,
+      deliveryAddress:body.deliveryAddress
+    });
 
+      const itemsText = [
+    ...(order.items.proteins?? []).map(p => `${p.quantity} x ${p.name}`),
+    ...(order.items.combos ?? []).map(c => `${c.quantity} x ${c.name}`),
+  ].join(", ") || "No Items";
 
-    
      const message =
     order.deliveryType === "delivery"
       ? `

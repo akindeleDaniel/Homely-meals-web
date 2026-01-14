@@ -1,9 +1,7 @@
 import { Controller } from "tsoa";
-import { Order as OrderDTO } from "../interfaces/order.interface";
-import { DeliveryArea } from "../constants/delivery";
-import { Protein, Combo } from "../services/cart.service";
+import { proteinItems, comboItems } from "../services/cart.service";
+import type { OrderDTO } from "../interfaces/order.interface";
 export declare class MainController extends Controller {
-    private auth;
     register(b: {
         email: string;
         password: string;
@@ -12,21 +10,18 @@ export declare class MainController extends Controller {
     }): Promise<{
         message: string;
     }>;
-    login(b: any): Promise<{
+    login(body: {
+        email: string;
+        password: string;
+    }): Promise<{
         message: string;
-        token?: undefined;
-    } | {
-        token: string;
-        message?: undefined;
     }>;
-    addCart(b: {
-        proteins?: Protein[];
-        combo?: Combo;
-    }, r: any): import("../services/cart.service").Cart;
-    createOrder(req: any, body: {
-        deliveryType: "pickup" | "delivery";
-        deliveryArea?: DeliveryArea;
-        deliveryAddress?: string;
-    }, r: any): Promise<OrderDTO>;
+    addCart(body: {
+        proteins?: proteinItems[];
+        combo?: comboItems[];
+    }): import("../services/cart.service").Cart;
+    placeOrder(body: OrderDTO): Promise<{
+        message: string;
+    }>;
 }
 //# sourceMappingURL=user.controller.d.ts.map

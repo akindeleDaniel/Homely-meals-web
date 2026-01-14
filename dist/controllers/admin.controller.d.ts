@@ -11,11 +11,32 @@ export declare class AdminController extends Controller {
     get(r: any): Promise<{
         id: string;
         phoneNumber: string;
-        items: any;
+        items: {
+            proteins: import("mongoose").Types.DocumentArray<{
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }> & {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }>;
+            combos: import("mongoose").Types.DocumentArray<{
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }> & {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }>;
+        } | null | undefined;
         subtotal: number;
         deliveryFee: number;
         total: number;
-        status: "pending" | "confirmed" | "delivered";
+        status: string;
         deliveryType: "pickup" | "delivery";
         deliveryAddress: string | undefined;
         pickupLocation: string | undefined;
@@ -25,11 +46,32 @@ export declare class AdminController extends Controller {
     update(id: string, b: any, r: any): Promise<{
         id: string;
         phoneNumber: string;
-        items: any;
+        items: {
+            proteins: import("mongoose").Types.DocumentArray<{
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }> & {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }>;
+            combos: import("mongoose").Types.DocumentArray<{
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }> & {
+                name?: string | null | undefined;
+                quantity?: number | null | undefined;
+            }>;
+        } | null | undefined;
         subtotal: number;
         deliveryFee: number;
         total: number;
-        status: "pending" | "confirmed" | "delivered";
+        status: string;
         deliveryType: "pickup" | "delivery";
         deliveryAddress: string | null | undefined;
         pickupLocation: string | null | undefined;

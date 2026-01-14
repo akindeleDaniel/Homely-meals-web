@@ -1,22 +1,16 @@
-interface CartItem {
-    baseMeal?: string;
-    proteins?: string[];
-    combo?: string;
-    subtotal: number;
+import { DeliveryArea } from "../constants/delivery";
+export interface OrderItem {
+    name: string;
+    quantity: number;
 }
-export interface Order {
-    id: string;
+export interface OrderItems {
+    proteins: OrderItem[];
+    combos: OrderItem[];
+}
+export interface OrderDTO {
     phoneNumber: string;
-    items: CartItem;
-    subtotal: number;
-    deliveryFee: number;
-    total: number;
-    status: "pending" | "confirmed" | "delivered";
     deliveryType: "pickup" | "delivery";
     deliveryAddress?: string;
-    pickupLocation?: string;
-    deliveryWindow?: string;
-    createdAt: Date;
+    deliveryArea?: DeliveryArea;
 }
-export {};
 //# sourceMappingURL=order.interface.d.ts.map

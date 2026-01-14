@@ -1,25 +1,24 @@
-import { DeliveryArea } from "../constants/delivery";
-interface CreateOrderInput {
-    userEmail: string;
+import { OrderDTO } from "../interfaces/order.interface";
+export declare const createOrder: (data: OrderDTO) => Promise<{
     phoneNumber: string;
-    cart: any;
-    deliveryType: "pickup" | "delivery";
-    deliveryArea?: DeliveryArea;
-    deliveryAddress?: string;
-}
-export declare const createOrder: (input: CreateOrderInput) => Promise<{
-    id: string;
-    phoneNumber: string;
-    items: any;
+    items: {
+        proteins: {
+            name: string;
+            quantity: number;
+        }[];
+        combos: {
+            name: string;
+            quantity: number;
+        }[];
+    };
     subtotal: number;
+    deliveryType: "pickup" | "delivery";
+    deliveryAddress: string | undefined;
+    pickupLocation: string | undefined;
     deliveryFee: number;
     total: number;
-    status: "pending" | "confirmed" | "delivered";
-    deliveryType: "pickup" | "delivery";
-    deliveryAddress: string | null | undefined;
-    pickupLocation: string | null | undefined;
-    deliveryWindow: string | null | undefined;
+    status: string;
+    deliveryWindow: string;
     createdAt: NativeDate;
 }>;
-export {};
 //# sourceMappingURL=order.service.d.ts.map

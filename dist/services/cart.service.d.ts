@@ -1,20 +1,28 @@
-import { PROTEIN_PRICES, COMBO_PRICES } from "../constants/prices";
-export type Protein = keyof typeof PROTEIN_PRICES;
-export type Combo = keyof typeof COMBO_PRICES;
+import { Protein, Combo } from "../constants/prices";
+export type proteinItems = {
+    name: Protein;
+    quantity: number;
+};
+export type comboItems = {
+    name: Combo;
+    quantity: number;
+};
 export interface Cart {
-    baseMeal: string;
-    proteins?: Protein[];
-    combo?: Combo;
+    items: {
+        proteins?: proteinItems[];
+        combos?: comboItems[];
+    };
     subtotal: number;
     currency: string;
+    itemsText: string;
 }
 export declare class CartService {
-    private static carts;
-    static get(email: string): Cart | undefined;
-    static clear(email: string): void;
-    static add(email: string, body: {
-        proteins?: Protein[];
-        combo?: Combo;
+    private static cart;
+    static add(input: {
+        proteins?: proteinItems[];
+        combos?: comboItems[];
     }): Cart;
+    static get(): Cart;
+    static clear(): void;
 }
 //# sourceMappingURL=cart.service.d.ts.map

@@ -3,33 +3,54 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CartService = void 0;
 const prices_1 = require("../constants/prices");
 class CartService {
-    static get(email) {
-        return this.carts.get(email);
-    }
-    static clear(email) {
-        this.carts.delete(email);
-    }
-    static add(email, body) {
-        let subtotal = prices_1.BASE_PRICE;
-        if (body.combo) {
-            subtotal = prices_1.COMBO_PRICES[body.combo];
+    static add(input) {
+        if (!input.combos && !input.proteins) {
+            throw new Error("No items in cart");
         }
-        if (body.proteins?.length) {
-            subtotal += body.proteins.reduce((sum, p) => {
-                return sum + prices_1.PROTEIN_PRICES[p];
-            }, 0);
+        if (!input.combos && input.proteins) {
+            throw new Error("Cannot mix proteins and combos");
         }
-        const cart = {
-            baseMeal: "Stir-Fried Spaghetti",
-            proteins: body.proteins,
-            combo: body.combo,
+        let subtotal = 0;
+        let itemsText = "";
+        if (input.proteins) {
+            subtotal = prices_1.BASE_PRICE;
+            itemsText = input.proteins
+                .map(p => {
+                if (p.quantity <= 0) {
+                    throw new Error(`Invalid quantity for protein ${p.name}`);
+                }
+                subtotal += prices_1.PROTEIN_PRICES[p.name] * p.quantity;
+                return `${p.quantity} x ${p.name}`;
+            }).join(", ");
+        }
+        if (input.combos) {
+            itemsText = input.combos
+                .map(c => {
+                if (c.quantity <= 0) {
+                    throw new Error(`Invalid quantity for combo ${c.name}`);
+                }
+                subtotal += prices_1.COMBO_PRICES[c.name] * c.quantity;
+                return `${c.quantity} x ${c.name}`;
+            }).join(", ");
+        }
+        this.cart = {
+            items: input,
             subtotal,
             currency: "₦",
+            itemsText,
         };
-        this.carts.set(email, cart);
-        return cart;
+        return this.cart;
+    }
+    static get() {
+        if (!this.cart) {
+            throw new Error("Cart is empty");
+        }
+        return this.cart;
+    }
+    static clear() {
+        this.cart = null;
     }
 }
 exports.CartService = CartService;
-CartService.carts = new Map();
+CartService.cart = null;
 //# sourceMappingURL=cart.service.js.map
