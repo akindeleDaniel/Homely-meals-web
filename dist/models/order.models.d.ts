@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 declare const _default: mongoose.Model<{
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -8,28 +9,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -37,6 +16,7 @@ declare const _default: mongoose.Model<{
     id: string;
 }, mongoose.Document<unknown, {}, {
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -44,28 +24,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -75,6 +33,7 @@ declare const _default: mongoose.Model<{
     timestamps: true;
 }> & Omit<{
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -82,28 +41,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -117,6 +54,7 @@ declare const _default: mongoose.Model<{
     timestamps: true;
 }, {
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -124,33 +62,12 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -158,28 +75,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -189,6 +84,7 @@ declare const _default: mongoose.Model<{
     timestamps: true;
 }>> & Omit<{
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -196,28 +92,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -232,6 +106,7 @@ declare const _default: mongoose.Model<{
 } | {
     [x: string]: mongoose.SchemaDefinitionProperty<any, any, mongoose.Document<unknown, {}, {
         phoneNumber: string;
+        items: any;
         subtotal: number;
         currency: string;
         userEmail: string;
@@ -239,28 +114,6 @@ declare const _default: mongoose.Model<{
         total: number;
         deliveryType: "pickup" | "delivery";
         status: string;
-        items?: {
-            proteins: mongoose.Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-            combos: mongoose.Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-        } | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
@@ -270,6 +123,7 @@ declare const _default: mongoose.Model<{
         timestamps: true;
     }>> & Omit<{
         phoneNumber: string;
+        items: any;
         subtotal: number;
         currency: string;
         userEmail: string;
@@ -277,28 +131,6 @@ declare const _default: mongoose.Model<{
         total: number;
         deliveryType: "pickup" | "delivery";
         status: string;
-        items?: {
-            proteins: mongoose.Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-            combos: mongoose.Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-        } | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
@@ -311,6 +143,7 @@ declare const _default: mongoose.Model<{
     }> | undefined;
 }, {
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -318,28 +151,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -351,6 +162,7 @@ declare const _default: mongoose.Model<{
     __v: number;
 }>, {
     phoneNumber: string;
+    items: any;
     subtotal: number;
     currency: string;
     userEmail: string;
@@ -358,28 +170,6 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
-    items?: {
-        proteins: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-        combos: mongoose.Types.DocumentArray<{
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }, mongoose.Types.Subdocument<mongoose.mongo.BSON.ObjectId, unknown, {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }> & {
-            name?: string | null | undefined;
-            quantity?: number | null | undefined;
-        }>;
-    } | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;

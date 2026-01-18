@@ -56,7 +56,9 @@ let MainController = class MainController extends tsoa_1.Controller {
             phoneNumber: body.phoneNumber,
             deliveryType: body.deliveryType,
             deliveryArea: body.deliveryArea,
-            deliveryAddress: body.deliveryAddress
+            deliveryAddress: body.deliveryAddress,
+            userEmail: body.userEmail,
+            currency: body.currency
         });
         const itemsText = [
             ...(order.items.proteins ?? []).map(p => `${p.quantity} x ${p.name}`),

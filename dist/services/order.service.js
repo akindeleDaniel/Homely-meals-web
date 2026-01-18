@@ -18,6 +18,8 @@ const createOrder = async (data) => {
     }
     const total = cart.subtotal + deliveryFee;
     const order = await order_models_1.default.create({
+        userEmail: data.userEmail,
+        currency: data.currency,
         phoneNumber: data.phoneNumber,
         items: cart.items,
         subtotal: cart.subtotal,
@@ -30,18 +32,21 @@ const createOrder = async (data) => {
         status: "pending",
     });
     cart_service_1.CartService.clear();
+    const items = order.items;
     return {
         phoneNumber: order.phoneNumber,
         items: {
-            proteins: order.items?.proteins?.map(p => ({
+            proteins: items.proteins?.map(p => ({
                 name: p.name,
                 quantity: p.quantity,
             })) ?? [],
-            combos: order.items?.combos?.map(c => ({
+            combos: items.combos?.map(c => ({
                 name: c.name,
                 quantity: c.quantity,
             })) ?? [],
         },
+        userEmail: order.userEmail,
+        currency: "₦",
         subtotal: order.subtotal,
         deliveryType: order.deliveryType,
         deliveryAddress: order.deliveryAddress ?? undefined,

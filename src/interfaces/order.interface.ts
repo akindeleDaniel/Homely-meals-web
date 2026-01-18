@@ -5,8 +5,8 @@ export interface OrderItem {
 }
 
 export interface OrderItems {
-    proteins: OrderItem[];
-    combos: OrderItem[];
+    proteins?: OrderItem[];
+    combos?: OrderItem[];
 }
   export interface OrderDTO{
     phoneNumber:string

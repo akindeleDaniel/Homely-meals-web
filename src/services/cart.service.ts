@@ -34,7 +34,7 @@ export class CartService {
       throw new Error("No items in cart");
     }
 
-    if (!input.combos && input.proteins) {
+    if (input.combos && input.proteins) {
       throw new Error("Cannot mix proteins and combos");
     }
 

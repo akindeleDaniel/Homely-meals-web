@@ -1,6 +1,6 @@
 import { Controller } from "tsoa";
 import { proteinItems, comboItems } from "../services/cart.service";
-import type { OrderDTO } from "../interfaces/order.interface";
+import type { Orderdto } from "../interfaces/order.interface";
 export declare class MainController extends Controller {
     register(b: {
         email: string;
@@ -18,9 +18,9 @@ export declare class MainController extends Controller {
     }>;
     addCart(body: {
         proteins?: proteinItems[];
-        combo?: comboItems[];
+        combos?: comboItems[];
     }): import("../services/cart.service").Cart;
-    placeOrder(body: OrderDTO): Promise<{
+    placeOrder(body: Orderdto): Promise<{
         message: string;
     }>;
 }

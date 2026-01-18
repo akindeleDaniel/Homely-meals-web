@@ -4,13 +4,21 @@ export interface OrderItem {
     quantity: number;
 }
 export interface OrderItems {
-    proteins: OrderItem[];
-    combos: OrderItem[];
+    proteins?: OrderItem[];
+    combos?: OrderItem[];
 }
 export interface OrderDTO {
     phoneNumber: string;
     deliveryType: "pickup" | "delivery";
     deliveryAddress?: string;
     deliveryArea?: DeliveryArea;
+}
+export interface Orderdto {
+    phoneNumber: string;
+    deliveryType: "pickup" | "delivery";
+    deliveryAddress?: string;
+    deliveryArea?: DeliveryArea;
+    userEmail: string;
+    currency: "₦";
 }
 //# sourceMappingURL=order.interface.d.ts.map

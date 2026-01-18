@@ -20,6 +20,22 @@
 				],
 				"nullable": false
 			},
+			"proteinItems": {
+				"properties": {
+					"quantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"name": {
+						"$ref": "#/components/schemas/Protein"
+					}
+				},
+				"required": [
+					"quantity",
+					"name"
+				],
+				"type": "object"
+			},
 			"Combo": {
 				"type": "string",
 				"enum": [
@@ -32,19 +48,40 @@
 				],
 				"nullable": false
 			},
+			"comboItems": {
+				"properties": {
+					"quantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"name": {
+						"$ref": "#/components/schemas/Combo"
+					}
+				},
+				"required": [
+					"quantity",
+					"name"
+				],
+				"type": "object"
+			},
 			"Cart": {
 				"properties": {
-					"baseMeal": {
-						"type": "string"
-					},
-					"proteins": {
-						"items": {
-							"$ref": "#/components/schemas/Protein"
+					"items": {
+						"properties": {
+							"combos": {
+								"items": {
+									"$ref": "#/components/schemas/comboItems"
+								},
+								"type": "array"
+							},
+							"proteins": {
+								"items": {
+									"$ref": "#/components/schemas/proteinItems"
+								},
+								"type": "array"
+							}
 						},
-						"type": "array"
-					},
-					"combo": {
-						"$ref": "#/components/schemas/Combo"
+						"type": "object"
 					},
 					"subtotal": {
 						"type": "number",
@@ -52,71 +89,31 @@
 					},
 					"currency": {
 						"type": "string"
+					},
+					"itemsText": {
+						"type": "string"
 					}
 				},
 				"required": [
-					"baseMeal",
+					"items",
 					"subtotal",
-					"currency"
+					"currency",
+					"itemsText"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
-			"CartItem": {
-				"properties": {
-					"baseMeal": {
-						"type": "string"
-					},
-					"proteins": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"combo": {
-						"type": "string"
-					},
-					"subtotal": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"subtotal"
-				],
-				"type": "object",
-				"additionalProperties": false
+			"DeliveryArea": {
+				"type": "string",
+				"enum": [
+					"gk",
+					"outside-gk"
+				]
 			},
 			"OrderDTO": {
 				"properties": {
-					"id": {
-						"type": "string"
-					},
 					"phoneNumber": {
 						"type": "string"
-					},
-					"items": {
-						"$ref": "#/components/schemas/CartItem"
-					},
-					"subtotal": {
-						"type": "number",
-						"format": "double"
-					},
-					"deliveryFee": {
-						"type": "number",
-						"format": "double"
-					},
-					"total": {
-						"type": "number",
-						"format": "double"
-					},
-					"status": {
-						"type": "string",
-						"enum": [
-							"pending",
-							"confirmed",
-							"delivered"
-						]
 					},
 					"deliveryType": {
 						"type": "string",
@@ -128,38 +125,16 @@
 					"deliveryAddress": {
 						"type": "string"
 					},
-					"pickupLocation": {
-						"type": "string"
-					},
-					"deliveryWindow": {
-						"type": "string"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
+					"deliveryArea": {
+						"$ref": "#/components/schemas/DeliveryArea"
 					}
 				},
 				"required": [
-					"id",
 					"phoneNumber",
-					"items",
-					"subtotal",
-					"deliveryFee",
-					"total",
-					"status",
-					"deliveryType",
-					"createdAt"
+					"deliveryType"
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"DeliveryArea": {
-				"type": "string",
-				"enum": [
-					"gk",
-					"outside-gk"
-				],
-				"nullable": false
 			},
 			"NativeDate": {
 				"type": "string"
@@ -245,30 +220,15 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"anyOf": [
-										{
-											"properties": {
-												"token": {},
-												"message": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"message"
-											],
-											"type": "object"
-										},
-										{
-											"properties": {
-												"message": {},
-												"token": {}
-											},
-											"required": [
-												"token"
-											],
-											"type": "object"
+									"properties": {
+										"message": {
+											"type": "string"
 										}
-									]
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -283,7 +243,21 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"properties": {
+									"password": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"password",
+									"email"
+								],
+								"type": "object"
+							}
 						}
 					}
 				}
@@ -316,11 +290,14 @@
 							"schema": {
 								"properties": {
 									"combo": {
-										"$ref": "#/components/schemas/Combo"
+										"items": {
+											"$ref": "#/components/schemas/comboItems"
+										},
+										"type": "array"
 									},
 									"proteins": {
 										"items": {
-											"$ref": "#/components/schemas/Protein"
+											"$ref": "#/components/schemas/proteinItems"
 										},
 										"type": "array"
 									}
@@ -334,14 +311,22 @@
 		},
 		"/main/order": {
 			"post": {
-				"operationId": "CreateOrder",
+				"operationId": "PlaceOrder",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/OrderDTO"
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -357,25 +342,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"properties": {
-									"deliveryAddress": {
-										"type": "string"
-									},
-									"deliveryArea": {
-										"$ref": "#/components/schemas/DeliveryArea"
-									},
-									"deliveryType": {
-										"type": "string",
-										"enum": [
-											"pickup",
-											"delivery"
-										]
-									}
-								},
-								"required": [
-									"deliveryType"
-								],
-								"type": "object"
+								"$ref": "#/components/schemas/OrderDTO"
 							}
 						}
 					}
@@ -581,12 +548,7 @@
 												]
 											},
 											"status": {
-												"type": "string",
-												"enum": [
-													"pending",
-													"confirmed",
-													"delivered"
-												]
+												"type": "string"
 											},
 											"total": {
 												"type": "number",
@@ -667,12 +629,7 @@
 											]
 										},
 										"status": {
-											"type": "string",
-											"enum": [
-												"pending",
-												"confirmed",
-												"delivered"
-											]
+											"type": "string"
 										},
 										"total": {
 											"type": "number",

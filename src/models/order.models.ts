@@ -6,18 +6,8 @@ import mongoose from "mongoose";
       phoneNumber: { type: String, required: true },
 
       items:{
-        proteins:[
-          {
-            name:String,
-            quantity:Number
-          }
-        ],
-        combos:[
-          {
-            name:String,
-            quantity:Number
-          },
-        ],  
+        type: mongoose.Schema.Types.Mixed,
+      required: true,  
       },
 
       subtotal: { type: Number,required: true },

@@ -25,7 +25,10 @@ export class MainController extends Controller {
   }
 
   @Post("login")
-  async login(@Body() body: {email: string; password: string;}) {
+  async login(@Body() body: {
+    email: string; 
+    password: string;
+  }) {
     if (!body.email || !body.password) {
       throw new Error("Email and password are required");
     }
@@ -46,7 +49,7 @@ if (!ok) {
   addCart(
     @Body() body: {
     proteins?: proteinItems[];
-    combo?: comboItems[];
+    combos?: comboItems[];
     }
   ){
     return CartService.add(body)

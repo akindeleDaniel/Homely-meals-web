@@ -8,18 +8,8 @@ const OrderSchema = new mongoose_1.default.Schema({
     userEmail: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     items: {
-        proteins: [
-            {
-                name: String,
-                quantity: Number
-            }
-        ],
-        combos: [
-            {
-                name: String,
-                quantity: Number
-            },
-        ],
+        type: mongoose_1.default.Schema.Types.Mixed,
+        required: true,
     },
     subtotal: { type: Number, required: true },
     deliveryFee: { type: Number, required: true },

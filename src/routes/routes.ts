@@ -21,56 +21,46 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"enum","enums":["Egg","Beef","Fish","Plantain + Fish","Chicken","Sardine","coleslaw"],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "proteinItems": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"quantity":{"dataType":"double","required":true},"name":{"ref":"Protein","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Combo": {
         "dataType": "refAlias",
         "type": {"dataType":"enum","enums":["Stir-Fried Spag + Sardine & Fried Fish","Stir-Fried Spag + Egg & Fried Fish","Stir-Fried Spag + Egg","Stir-Fried Spag + Beef","Stir-Fried Spag + Fish & Plantain","Stir-Fried Spag + Dodo & Beef"],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "comboItems": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"quantity":{"dataType":"double","required":true},"name":{"ref":"Combo","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Cart": {
         "dataType": "refObject",
         "properties": {
-            "baseMeal": {"dataType":"string","required":true},
-            "proteins": {"dataType":"array","array":{"dataType":"refAlias","ref":"Protein"}},
-            "combo": {"ref":"Combo"},
+            "items": {"dataType":"nestedObjectLiteral","nestedProperties":{"combos":{"dataType":"array","array":{"dataType":"refAlias","ref":"comboItems"}},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"proteinItems"}}},"required":true},
             "subtotal": {"dataType":"double","required":true},
             "currency": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CartItem": {
-        "dataType": "refObject",
-        "properties": {
-            "baseMeal": {"dataType":"string"},
-            "proteins": {"dataType":"array","array":{"dataType":"string"}},
-            "combo": {"dataType":"string"},
-            "subtotal": {"dataType":"double","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "OrderDTO": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "phoneNumber": {"dataType":"string","required":true},
-            "items": {"ref":"CartItem","required":true},
-            "subtotal": {"dataType":"double","required":true},
-            "deliveryFee": {"dataType":"double","required":true},
-            "total": {"dataType":"double","required":true},
-            "status": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["confirmed"]},{"dataType":"enum","enums":["delivered"]}],"required":true},
-            "deliveryType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pickup"]},{"dataType":"enum","enums":["delivery"]}],"required":true},
-            "deliveryAddress": {"dataType":"string"},
-            "pickupLocation": {"dataType":"string"},
-            "deliveryWindow": {"dataType":"string"},
-            "createdAt": {"dataType":"datetime","required":true},
+            "itemsText": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "DeliveryArea": {
         "dataType": "refAlias",
-        "type": {"dataType":"enum","enums":["gk","outside-gk"],"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["gk"]},{"dataType":"enum","enums":["outside-gk"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "OrderDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "phoneNumber": {"dataType":"string","required":true},
+            "deliveryType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pickup"]},{"dataType":"enum","enums":["delivery"]}],"required":true},
+            "deliveryAddress": {"dataType":"string"},
+            "deliveryArea": {"ref":"DeliveryArea"},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "NativeDate": {
@@ -126,7 +116,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsMainController_login: Record<string, TsoaRoute.ParameterSchema> = {
-                b: {"in":"body","name":"b","required":true,"dataType":"any"},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
         };
         app.post('/main/login',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -156,8 +146,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsMainController_addCart: Record<string, TsoaRoute.ParameterSchema> = {
-                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"combo":{"ref":"Combo"},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"Protein"}}}},
-                r: {"in":"request","name":"r","required":true,"dataType":"object"},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"combo":{"dataType":"array","array":{"dataType":"refAlias","ref":"comboItems"}},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"proteinItems"}}}},
         };
         app.post('/main/cart/add',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -186,27 +175,25 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMainController_createOrder: Record<string, TsoaRoute.ParameterSchema> = {
-                req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"deliveryAddress":{"dataType":"string"},"deliveryArea":{"ref":"DeliveryArea"},"deliveryType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pickup"]},{"dataType":"enum","enums":["delivery"]}],"required":true}}},
-                r: {"in":"request","name":"r","required":true,"dataType":"object"},
+        const argsMainController_placeOrder: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"OrderDTO"},
         };
         app.post('/main/order',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
-            ...(fetchMiddlewares<RequestHandler>(MainController.prototype.createOrder)),
+            ...(fetchMiddlewares<RequestHandler>(MainController.prototype.placeOrder)),
 
-            async function MainController_createOrder(request: ExRequest, response: ExResponse, next: any) {
+            async function MainController_placeOrder(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMainController_createOrder, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsMainController_placeOrder, request, response });
 
                 const controller = new MainController();
 
               await templateService.apiHandler({
-                methodName: 'createOrder',
+                methodName: 'placeOrder',
                 controller,
                 response,
                 next,

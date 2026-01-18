@@ -1,6 +1,5 @@
-import { OrderDTO } from "../interfaces/order.interface";
-export declare const createOrder: (data: OrderDTO) => Promise<{
-    phoneNumber: string;
+import { Orderdto } from "../interfaces/order.interface";
+export declare const createOrder: (data: Orderdto) => Promise<Orderdto & {
     items: {
         proteins: {
             name: string;
@@ -12,13 +11,11 @@ export declare const createOrder: (data: OrderDTO) => Promise<{
         }[];
     };
     subtotal: number;
-    deliveryType: "pickup" | "delivery";
-    deliveryAddress: string | undefined;
-    pickupLocation: string | undefined;
     deliveryFee: number;
     total: number;
     status: string;
+    pickupLocation?: string;
     deliveryWindow: string;
-    createdAt: NativeDate;
+    createdAt: Date;
 }>;
 //# sourceMappingURL=order.service.d.ts.map

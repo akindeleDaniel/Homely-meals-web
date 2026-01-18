@@ -1,17 +1,22 @@
 import OrderSchema from "../models/order.models";
 import { DELIVERY_FEES, DELIVERY_WINDOW, DeliveryArea } from "../constants/delivery";
 import { CartService } from "./cart.service";
-import { OrderDTO } from "../interfaces/order.interface";
-
-interface CreateOrderInput {
-  phoneNumber: string;
-  deliveryType: "pickup" | "delivery";
-  deliveryArea?: DeliveryArea;
-  deliveryAddress?: string;
-}
+import { OrderDTO, OrderItems } from "../interfaces/order.interface";
 
 export const createOrder = async (data:OrderDTO
-) => {
+):Promise<OrderDTO & {
+  items:{
+    proteins:{name:string; quantity:number}[]
+    combos:{name:string; quantity:number}[]
+  }
+  subtotal:number;
+  deliveryFee:number;
+  total: number;
+  status:string;
+  pickupLocation?:string;
+  deliveryWindow:string;
+  createdAt:Date;
+}> =>{
   const cart = CartService.get();
   let deliveryFee = 0;
 
@@ -40,16 +45,18 @@ export const createOrder = async (data:OrderDTO
 
   CartService.clear();
 
+  const items = order.items as OrderItems
+
   return {
     phoneNumber: order.phoneNumber,
     items: {
       proteins:
-        order.items?.proteins?.map(p => ({
+        items.proteins?.map(p => ({
           name: p.name!,
           quantity: p.quantity!,
         })) ?? [],
       combos:
-        order.items?.combos?.map(c => ({
+        items.combos?.map(c => ({
           name: c.name!,
           quantity: c.quantity!,
         })) ?? [],
