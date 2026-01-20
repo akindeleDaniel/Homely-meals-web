@@ -4,7 +4,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -12,6 +11,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
@@ -19,7 +19,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -27,6 +26,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, {
@@ -36,7 +36,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -44,6 +43,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -57,7 +57,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -65,12 +64,12 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     phoneNumber: string;
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -78,6 +77,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, mongoose.ResolveSchemaOptions<{
@@ -87,7 +87,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -95,6 +94,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -109,7 +109,6 @@ declare const _default: mongoose.Model<{
         items: any;
         subtotal: number;
         currency: string;
-        userEmail: string;
         deliveryFee: number;
         total: number;
         deliveryType: "pickup" | "delivery";
@@ -117,6 +116,7 @@ declare const _default: mongoose.Model<{
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
+        userEmail?: string | null | undefined;
     } & mongoose.DefaultTimestampProps, {
         id: string;
     }, mongoose.ResolveSchemaOptions<{
@@ -126,7 +126,6 @@ declare const _default: mongoose.Model<{
         items: any;
         subtotal: number;
         currency: string;
-        userEmail: string;
         deliveryFee: number;
         total: number;
         deliveryType: "pickup" | "delivery";
@@ -134,6 +133,7 @@ declare const _default: mongoose.Model<{
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
+        userEmail?: string | null | undefined;
     } & mongoose.DefaultTimestampProps & {
         _id: mongoose.Types.ObjectId;
     } & {
@@ -146,7 +146,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -154,6 +153,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
@@ -165,7 +165,6 @@ declare const _default: mongoose.Model<{
     items: any;
     subtotal: number;
     currency: string;
-    userEmail: string;
     deliveryFee: number;
     total: number;
     deliveryType: "pickup" | "delivery";
@@ -173,6 +172,7 @@ declare const _default: mongoose.Model<{
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
+    userEmail?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {

@@ -1,5 +1,5 @@
-import { Orderdto } from "../interfaces/order.interface";
-export declare const createOrder: (data: Orderdto) => Promise<Orderdto & {
+import { OrderDTO } from "../interfaces/order.interface";
+export declare const createOrder: (data: OrderDTO) => Promise<OrderDTO & {
     items: {
         proteins: {
             name: string;

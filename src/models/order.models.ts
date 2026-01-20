@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
   const OrderSchema = new mongoose.Schema(
     {
-      userEmail: { type: String, required: true },
+      userEmail: { type: String},
       phoneNumber: { type: String, required: true },
 
       items:{
@@ -13,7 +13,7 @@ import mongoose from "mongoose";
       subtotal: { type: Number,required: true },
       deliveryFee: { type: Number, required: true },
       total: { type: Number, required: true },
-      currency:{ type: String, required: true },
+      currency:{ type: String, default:"₦" },
 
       deliveryType: { 
         type: String, 

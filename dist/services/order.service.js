@@ -18,8 +18,6 @@ const createOrder = async (data) => {
     }
     const total = cart.subtotal + deliveryFee;
     const order = await order_models_1.default.create({
-        userEmail: data.userEmail,
-        currency: data.currency,
         phoneNumber: data.phoneNumber,
         items: cart.items,
         subtotal: cart.subtotal,
@@ -45,8 +43,6 @@ const createOrder = async (data) => {
                 quantity: c.quantity,
             })) ?? [],
         },
-        userEmail: order.userEmail,
-        currency: "₦",
         subtotal: order.subtotal,
         deliveryType: order.deliveryType,
         deliveryAddress: order.deliveryAddress ?? undefined,
