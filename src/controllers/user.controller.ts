@@ -1,10 +1,12 @@
-import { Controller, Route, Tags, Post, Body } from "tsoa";
+import { Controller, Route, Tags, Post, Body, SuccessResponse } from "tsoa";
 import bcrypt from "bcrypt";
 import User from "../models/user.models";
 import { proteinItems, comboItems, CartService } from "../services/cart.service";
 import {Telegram} from "../utils/telegram";
 import dotenv from "dotenv";
 import { createOrder } from "../services/order.service";
+import { initializePaystack } from "../services/paystack.service";
+import { v4 as uuidv4 } from "uuid";
 import type { OrderDTO } from "../interfaces/order.interface";
 
 dotenv.config();
@@ -55,10 +57,63 @@ if (!ok) {
     return CartService.add(body)
   }
 
-  @Post("order")
-  public async placeOrder(
-    @Body()
-    body: OrderDTO
+
+  @Post("checkout")
+  @SuccessResponse("200", "Payment Initialized")
+  public async checkout(
+    @Body() body: OrderDTO
+): Promise<{ paymentUrl: string; orderRef: string }> {
+
+    if (!body.email) {
+      this.setStatus(400);
+      throw new Error("Email is required for payment");
+    }
+
+    if (!body.phoneNumber) {
+      this.setStatus(400);
+      throw new Error("Phone number is required");
+    }
+
+    const cart = CartService.get();
+    if (!cart) {
+      this.setStatus(400);
+      throw new Error("Cart is empty");
+    }
+    let total = 0;
+
+    if (body.deliveryType === "delivery") {
+      total += 500; 
+    }
+    const orderRef = `ORD_${uuidv4()}`;
+
+    const paystackResponse = await initializePaystack({
+      email: body.email,
+      amount: total * 100, 
+      reference: orderRef,
+      metadata: {
+        phoneNumber: body.phoneNumber,
+        deliveryType: body.deliveryType,
+        deliveryAddress: body.deliveryAddress,
+        deliveryArea: body.deliveryArea,
+        items: cart.items,
+        subtotal: cart.subtotal,
+        deliveryFee,
+        total
+      }
+    });
+
+    if (!paystackResponse.status) {
+      this.setStatus(500);
+      throw new Error("Failed to initialize payment");
+    }
+
+    return {
+      paymentUrl: paystackResponse.data.authorization_url,
+      orderRef
+    };
+  }
+}
+
 ):Promise<{message:string}> {
   if (!body.phoneNumber) {
     throw new Error("Phone number is required");

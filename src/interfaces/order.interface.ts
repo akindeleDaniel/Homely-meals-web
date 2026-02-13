@@ -9,6 +9,7 @@ export interface OrderItems {
     combos?: OrderItem[];
 }
   export interface OrderDTO{
+    email:string;
     phoneNumber:string
     deliveryType: "pickup" | "delivery"
     deliveryAddress?:string

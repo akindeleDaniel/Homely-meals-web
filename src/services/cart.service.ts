@@ -1,5 +1,5 @@
 import { BASE_PRICE, PROTEIN_PRICES, COMBO_PRICES, Protein, Combo } from "../constants/prices";
-
+import CartModel from "../models/cart.model";
 
 
 export type proteinItems = {
@@ -23,7 +23,15 @@ export interface Cart {
 }
 
 export class CartService {
-  private static cart: Cart | null = null;
+  static async getCart(userId: string){
+    let cart = await CartModel.findOne({userId});
+    if (!cart){
+      cart = await CartModel.create({userId, items:{proteins:[], combos:[]}, 
+        subtotal:0
+      });
+    }
+    return cart;
+  }
 
   static add(input: {
     proteins?: proteinItems[];
