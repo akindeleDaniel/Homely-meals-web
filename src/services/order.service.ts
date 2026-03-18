@@ -48,6 +48,7 @@ export const createOrder = async (data:OrderDTO
   const items = order.items as OrderItems
 
   return {
+    email: data.email,
     phoneNumber: order.phoneNumber,
     items: {
       proteins:

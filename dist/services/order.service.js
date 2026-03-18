@@ -32,6 +32,7 @@ const createOrder = async (data) => {
     cart_service_1.CartService.clear();
     const items = order.items;
     return {
+        email: data.email,
         phoneNumber: order.phoneNumber,
         items: {
             proteins: items.proteins?.map(p => ({

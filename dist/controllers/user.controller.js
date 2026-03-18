@@ -23,6 +23,8 @@ const cart_service_1 = require("../services/cart.service");
 const telegram_1 = require("../utils/telegram");
 const dotenv_1 = __importDefault(require("dotenv"));
 const order_service_1 = require("../services/order.service");
+const paystack_service_1 = require("../services/paystack.service");
+const uuid_1 = require("uuid");
 dotenv_1.default.config();
 let MainController = class MainController extends tsoa_1.Controller {
     async register(b) {
@@ -42,41 +44,88 @@ let MainController = class MainController extends tsoa_1.Controller {
         if (!ok) {
             throw new Error("Invalid email or password");
         }
-        return { message: "Logged in", };
+        return { message: "Logged in" };
     }
-    ;
     addCart(body) {
         return cart_service_1.CartService.add(body);
+    }
+    async checkout(body) {
+        if (!body.email) {
+            this.setStatus(400);
+            throw new Error("Email is required for payment");
+        }
+        if (!body.phoneNumber) {
+            this.setStatus(400);
+            throw new Error("Phone number is required");
+        }
+        const cart = cart_service_1.CartService.get();
+        if (!cart) {
+            this.setStatus(400);
+            throw new Error("Cart is empty");
+        }
+        let total = cart.subtotal;
+        let deliveryFee = 0;
+        if (body.deliveryType === "delivery") {
+            deliveryFee = 500;
+            total += deliveryFee;
+        }
+        const orderRef = `ORD_${(0, uuid_1.v4)()}`;
+        const paystackResponse = await (0, paystack_service_1.initializePaystack)({
+            email: body.email,
+            amount: total * 100,
+            reference: orderRef,
+            metadata: {
+                phoneNumber: body.phoneNumber,
+                deliveryType: body.deliveryType,
+                deliveryAddress: body.deliveryAddress,
+                deliveryArea: body.deliveryArea,
+                items: cart.items,
+                subtotal: cart.subtotal,
+                deliveryFee,
+                total,
+            },
+        });
+        if (!paystackResponse.status) {
+            this.setStatus(500);
+            throw new Error("Failed to initialize payment");
+        }
+        return {
+            paymentUrl: paystackResponse.data.authorization_url,
+            orderRef,
+        };
     }
     async placeOrder(body) {
         if (!body.phoneNumber) {
             throw new Error("Phone number is required");
         }
         const order = await (0, order_service_1.createOrder)({
+            email: body.email,
             phoneNumber: body.phoneNumber,
             deliveryType: body.deliveryType,
             deliveryArea: body.deliveryArea,
-            deliveryAddress: body.deliveryAddress
+            deliveryAddress: body.deliveryAddress,
         });
         const itemsText = [
-            ...(order.items.proteins ?? []).map(p => `${p.quantity} x ${p.name}`),
-            ...(order.items.combos ?? []).map(c => `${c.quantity} x ${c.name}`),
-        ].join(", ") || "No Items";
+            ...(order.items.proteins ?? []).map((p) => `${p.quantity} x ${p.name}`),
+            ...(order.items.combos ?? []).map((c) => `${c.quantity} x ${c.name}`),
+        ]
+            .join(", ")
+            .trim();
         const message = order.deliveryType === "delivery"
             ? `
-🍔 NEW ORDER
-📞 Phone: ${order.phoneNumber}
-🍽 Items: ${itemsText}
-🚚 Delivery Fee: ₦${order.deliveryFee}
-💰 Total: ₦${order.total}
-📍 Address: ${order.deliveryAddress}
+ NEW ORDER
+ Phone: ${order.phoneNumber}
+ Items: ${itemsText || "No Items"}
+ Delivery Fee: ${order.deliveryFee}
+ Total: ${order.total}
+ Address: ${order.deliveryAddress}
 `
             : `
-🍔 NEW ORDER (PICKUP)
-📞 Phone: ${order.phoneNumber}
-🍽 Items: ${itemsText}
-💰 Total: ₦${order.total}
-📍 Pickup: ${order.pickupLocation}
+ NEW ORDER (PICKUP)
+ Phone: ${order.phoneNumber}
+ Items: ${itemsText || "No Items"}
+ Total: ${order.total}
+ Pickup: ${order.pickupLocation}
 `;
         await (0, telegram_1.Telegram)(message);
         return { message: "Order placed successfully. Thank you for choosing Homely Made Meals" };
@@ -104,6 +153,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MainController.prototype, "addCart", null);
+__decorate([
+    (0, tsoa_1.Post)("checkout"),
+    (0, tsoa_1.SuccessResponse)("200", "Payment Initialized"),
+    __param(0, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MainController.prototype, "checkout", null);
 __decorate([
     (0, tsoa_1.Post)("order"),
     __param(0, (0, tsoa_1.Body)()),

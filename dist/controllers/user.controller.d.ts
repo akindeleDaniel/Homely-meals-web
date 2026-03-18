@@ -20,6 +20,10 @@ export declare class MainController extends Controller {
         proteins?: proteinItems[];
         combos?: comboItems[];
     }): import("../services/cart.service").Cart;
+    checkout(body: OrderDTO): Promise<{
+        paymentUrl: string;
+        orderRef: string;
+    }>;
     placeOrder(body: OrderDTO): Promise<{
         message: string;
     }>;

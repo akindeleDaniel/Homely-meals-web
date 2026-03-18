@@ -23,6 +23,8 @@ export interface Cart {
 }
 
 export class CartService {
+  private static cart: Cart | null = null;
+
   static async getCart(userId: string){
     let cart = await CartModel.findOne({userId});
     if (!cart){

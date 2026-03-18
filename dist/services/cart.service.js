@@ -1,8 +1,21 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CartService = void 0;
 const prices_1 = require("../constants/prices");
+const cart_model_1 = __importDefault(require("../models/cart.model"));
 class CartService {
+    static async getCart(userId) {
+        let cart = await cart_model_1.default.findOne({ userId });
+        if (!cart) {
+            cart = await cart_model_1.default.create({ userId, items: { proteins: [], combos: [] },
+                subtotal: 0
+            });
+        }
+        return cart;
+    }
     static add(input) {
         if (!input.combos && !input.proteins) {
             throw new Error("No items in cart");
