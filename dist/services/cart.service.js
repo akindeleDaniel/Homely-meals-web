@@ -10,13 +10,32 @@ class CartService {
     static async getCart(userId) {
         let cart = await cart_model_1.default.findOne({ userId });
         if (!cart) {
-            cart = await cart_model_1.default.create({ userId, items: { proteins: [], combos: [] },
-                subtotal: 0
+            cart = await cart_model_1.default.create({
+                userId,
+                items: { proteins: [], combos: [] },
+                subtotal: 0,
+                currency: "₦",
+                itemsText: "",
             });
         }
-        return cart;
+        const formattedItems = {
+            proteins: cart.items?.proteins?.map((p) => ({
+                name: p.name,
+                quantity: p.quantity,
+            })),
+            combos: cart.items?.combos?.map((c) => ({
+                name: c.name,
+                quantity: c.quantity,
+            })),
+        };
+        return {
+            items: formattedItems,
+            subtotal: cart.subtotal,
+            currency: cart.currency || "₦",
+            itemsText: cart.itemsText || "",
+        };
     }
-    static add(input) {
+    static async add(userId, input) {
         if (!input.combos && !input.proteins) {
             throw new Error("No items in cart");
         }
@@ -28,42 +47,66 @@ class CartService {
         if (input.proteins) {
             subtotal = prices_1.BASE_PRICE;
             itemsText = input.proteins
-                .map(p => {
+                .map((p) => {
                 if (p.quantity <= 0) {
                     throw new Error(`Invalid quantity for protein ${p.name}`);
                 }
                 subtotal += prices_1.PROTEIN_PRICES[p.name] * p.quantity;
                 return `${p.quantity} x ${p.name}`;
-            }).join(", ");
+            })
+                .join(", ");
         }
         if (input.combos) {
+            subtotal = prices_1.BASE_PRICE;
             itemsText = input.combos
-                .map(c => {
+                .map((c) => {
                 if (c.quantity <= 0) {
                     throw new Error(`Invalid quantity for combo ${c.name}`);
                 }
                 subtotal += prices_1.COMBO_PRICES[c.name] * c.quantity;
                 return `${c.quantity} x ${c.name}`;
-            }).join(", ");
+            })
+                .join(", ");
         }
-        this.cart = {
+        await cart_model_1.default.findOneAndUpdate({ userId }, {
+            userId,
+            items: input,
+            subtotal,
+            currency: "₦",
+            itemsText,
+        }, { upsert: true, new: true });
+        return {
             items: input,
             subtotal,
             currency: "₦",
             itemsText,
         };
-        return this.cart;
     }
-    static get() {
-        if (!this.cart) {
+    static async get(userId) {
+        const cart = await cart_model_1.default.findOne({ userId });
+        if (!cart) {
             throw new Error("Cart is empty");
         }
-        return this.cart;
+        const formattedItems = {
+            proteins: cart.items?.proteins?.map((p) => ({
+                name: p.name,
+                quantity: p.quantity,
+            })),
+            combos: cart.items?.combos?.map((c) => ({
+                name: c.name,
+                quantity: c.quantity,
+            })),
+        };
+        return {
+            items: formattedItems,
+            subtotal: cart.subtotal,
+            currency: cart.currency || "₦",
+            itemsText: cart.itemsText || "",
+        };
     }
-    static clear() {
-        this.cart = null;
+    static async clear(userId) {
+        await cart_model_1.default.findOneAndDelete({ userId });
     }
 }
 exports.CartService = CartService;
-CartService.cart = null;
 //# sourceMappingURL=cart.service.js.map

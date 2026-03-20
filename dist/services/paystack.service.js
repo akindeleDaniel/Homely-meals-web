@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializePaystack = initializePaystack;
+exports.verifyPaystack = verifyPaystack;
 const https_1 = __importDefault(require("https"));
 function initializePaystack(data) {
     return new Promise((resolve, reject) => {
@@ -42,6 +43,35 @@ function initializePaystack(data) {
             reject(error);
         });
         req.write(payload);
+        req.end();
+    });
+}
+function verifyPaystack(reference) {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: "api.paystack.co",
+            path: `/transaction/verify/${encodeURIComponent(reference)}`,
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            },
+        };
+        const req = https_1.default.request(options, (res) => {
+            let body = "";
+            res.on("data", (chunk) => {
+                body += chunk;
+            });
+            res.on("end", () => {
+                try {
+                    const parsed = JSON.parse(body);
+                    resolve(parsed);
+                }
+                catch (err) {
+                    reject(err);
+                }
+            });
+        });
+        req.on("error", (error) => reject(error));
         req.end();
     });
 }

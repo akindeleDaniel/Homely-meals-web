@@ -16,6 +16,15 @@ import type { Request as ExRequest, Response as ExResponse, RequestHandler, Rout
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "LoginRequest": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Protein": {
         "dataType": "refAlias",
         "type": {"dataType":"enum","enums":["Egg","Beef","Fish","Plantain + Fish","Chicken","Sardine","coleslaw"],"validators":{}},
@@ -36,17 +45,6 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"quantity":{"dataType":"double","required":true},"name":{"ref":"Combo","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Cart": {
-        "dataType": "refObject",
-        "properties": {
-            "items": {"dataType":"nestedObjectLiteral","nestedProperties":{"combos":{"dataType":"array","array":{"dataType":"refAlias","ref":"comboItems"}},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"proteinItems"}}},"required":true},
-            "subtotal": {"dataType":"double","required":true},
-            "currency": {"dataType":"string","required":true},
-            "itemsText": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "DeliveryArea": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["gk"]},{"dataType":"enum","enums":["outside-gk"]}],"validators":{}},
@@ -55,6 +53,7 @@ const models: TsoaRoute.Models = {
     "OrderDTO": {
         "dataType": "refObject",
         "properties": {
+            "email": {"dataType":"string","required":true},
             "phoneNumber": {"dataType":"string","required":true},
             "deliveryType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pickup"]},{"dataType":"enum","enums":["delivery"]}],"required":true},
             "deliveryAddress": {"dataType":"string"},
@@ -86,7 +85,7 @@ export function RegisterRoutes(app: Router) {
 
     
         const argsMainController_register: Record<string, TsoaRoute.ParameterSchema> = {
-                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"lastName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"phoneNumber":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
         };
         app.post('/main/register',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -116,7 +115,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsMainController_login: Record<string, TsoaRoute.ParameterSchema> = {
-                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
+                body: {"in":"body","name":"body","required":true,"ref":"LoginRequest"},
         };
         app.post('/main/login',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -145,8 +144,38 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMainController_welcome: Record<string, TsoaRoute.ParameterSchema> = {
+        };
+        app.get('/main/welcome',
+            ...(fetchMiddlewares<RequestHandler>(MainController)),
+            ...(fetchMiddlewares<RequestHandler>(MainController.prototype.welcome)),
+
+            async function MainController_welcome(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMainController_welcome, request, response });
+
+                const controller = new MainController();
+
+              await templateService.apiHandler({
+                methodName: 'welcome',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsMainController_addCart: Record<string, TsoaRoute.ParameterSchema> = {
-                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"combo":{"dataType":"array","array":{"dataType":"refAlias","ref":"comboItems"}},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"proteinItems"}}}},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"combos":{"dataType":"array","array":{"dataType":"refAlias","ref":"comboItems"}},"proteins":{"dataType":"array","array":{"dataType":"refAlias","ref":"proteinItems"}}}},
         };
         app.post('/main/cart/add',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -175,8 +204,70 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMainController_placeOrder: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsMainController_getCart: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/main/cart',
+            ...(fetchMiddlewares<RequestHandler>(MainController)),
+            ...(fetchMiddlewares<RequestHandler>(MainController.prototype.getCart)),
+
+            async function MainController_getCart(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMainController_getCart, request, response });
+
+                const controller = new MainController();
+
+              await templateService.apiHandler({
+                methodName: 'getCart',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMainController_checkout: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
                 body: {"in":"body","name":"body","required":true,"ref":"OrderDTO"},
+        };
+        app.post('/main/checkout',
+            ...(fetchMiddlewares<RequestHandler>(MainController)),
+            ...(fetchMiddlewares<RequestHandler>(MainController.prototype.checkout)),
+
+            async function MainController_checkout(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMainController_checkout, request, response });
+
+                const controller = new MainController();
+
+              await templateService.apiHandler({
+                methodName: 'checkout',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMainController_placeOrder: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                body: {"in":"body","name":"body","required":true,"dataType":"intersection","subSchemas":[{"ref":"OrderDTO"},{"dataType":"nestedObjectLiteral","nestedProperties":{"orderRef":{"dataType":"string","required":true}}}]},
         };
         app.post('/main/order',
             ...(fetchMiddlewares<RequestHandler>(MainController)),
@@ -223,6 +314,36 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getHome',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminController_register: Record<string, TsoaRoute.ParameterSchema> = {
+                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
+        };
+        app.post('/admin/register',
+            ...(fetchMiddlewares<RequestHandler>(AdminController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminController.prototype.register)),
+
+            async function AdminController_register(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminController_register, request, response });
+
+                const controller = new AdminController();
+
+              await templateService.apiHandler({
+                methodName: 'register',
                 controller,
                 response,
                 next,

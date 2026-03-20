@@ -23,23 +23,44 @@ export interface Cart {
 }
 
 export class CartService {
-  private static cart: Cart | null = null;
-
-  static async getCart(userId: string){
-    let cart = await CartModel.findOne({userId});
-    if (!cart){
-      cart = await CartModel.create({userId, items:{proteins:[], combos:[]}, 
-        subtotal:0
+  static async getCart(userId: string) {
+    let cart = await CartModel.findOne({ userId });
+    if (!cart) {
+      cart = await CartModel.create({
+        userId,
+        items: { proteins: [], combos: [] },
+        subtotal: 0,
+        currency: "₦",
+        itemsText: "",
       });
     }
-    return cart;
+
+    const formattedItems = {
+      proteins: cart.items?.proteins?.map((p: any) => ({
+        name: p.name as Protein,
+        quantity: p.quantity as number,
+      })),
+      combos: cart.items?.combos?.map((c: any) => ({
+        name: c.name as Combo,
+        quantity: c.quantity as number,
+      })),
+    };
+
+    return {
+      items: formattedItems,
+      subtotal: cart.subtotal,
+      currency: cart.currency || "₦",
+      itemsText: cart.itemsText || "",
+    };
   }
 
-  static add(input: {
-    proteins?: proteinItems[];
-    combos?: comboItems[];
-  }): Cart {
-
+  static async add(
+    userId: string,
+    input: {
+      proteins?: proteinItems[];
+      combos?: comboItems[];
+    }
+  ) {
     if (!input.combos && !input.proteins) {
       throw new Error("No items in cart");
     }
@@ -48,48 +69,82 @@ export class CartService {
       throw new Error("Cannot mix proteins and combos");
     }
 
-    let subtotal = 0
+    let subtotal = 0;
     let itemsText = "";
 
-    if (input.proteins){
+    if (input.proteins) {
       subtotal = BASE_PRICE;
-
       itemsText = input.proteins
-        .map(p => {
-          if (p.quantity <= 0){
+        .map((p) => {
+          if (p.quantity <= 0) {
             throw new Error(`Invalid quantity for protein ${p.name}`);
           }
-        subtotal += PROTEIN_PRICES[p.name] * p.quantity;
-        return `${p.quantity} x ${p.name}`;
-      }).join(", ");
+          subtotal += PROTEIN_PRICES[p.name] * p.quantity;
+          return `${p.quantity} x ${p.name}`;
+        })
+        .join(", ");
     }
 
     if (input.combos) {
+      subtotal = BASE_PRICE;
       itemsText = input.combos
-        .map(c => {
-          if (c.quantity <= 0){
+        .map((c) => {
+          if (c.quantity <= 0) {
             throw new Error(`Invalid quantity for combo ${c.name}`);
           }
-        subtotal += COMBO_PRICES[c.name] * c.quantity;
-        return `${c.quantity} x ${c.name}`;
-      }).join(", ");
+          subtotal += COMBO_PRICES[c.name] * c.quantity;
+          return `${c.quantity} x ${c.name}`;
+        })
+        .join(", ");
     }
-    this.cart = {
+
+    await CartModel.findOneAndUpdate(
+      { userId },
+      {
+        userId,
+        items: input,
+        subtotal,
+        currency: "₦",
+        itemsText,
+      },
+      { upsert: true, new: true }
+    );
+
+    return {
       items: input,
       subtotal,
       currency: "₦",
       itemsText,
     };
-    return this.cart;
   }
-  static get(): Cart {
-    if(!this.cart){
+
+  static async get(userId: string) {
+    const cart = await CartModel.findOne({ userId });
+    if (!cart) {
       throw new Error("Cart is empty");
     }
-    return this.cart;
+
+    const formattedItems = {
+      proteins: cart.items?.proteins?.map((p: any) => ({
+        name: p.name as Protein,
+        quantity: p.quantity as number,
+      })),
+      combos: cart.items?.combos?.map((c: any) => ({
+        name: c.name as Combo,
+        quantity: c.quantity as number,
+      })),
+    };
+
+    return {
+      items: formattedItems,
+      subtotal: cart.subtotal,
+      currency: cart.currency || "₦",
+      itemsText: cart.itemsText || "",
+    };
   }
-  static clear(){
-    this.cart = null
+
+  static async clear(userId: string) {
+    await CartModel.findOneAndDelete({ userId });
   }
 }
 

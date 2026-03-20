@@ -25,9 +25,21 @@ const telegram_1 = require("../utils/telegram");
 let AdminController = class AdminController extends tsoa_1.Controller {
     auth(req) {
         const token = req.headers.authorization?.split(" ")[1];
+        if (!token)
+            throw new Error("Unauthorized");
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         if (decoded.role !== "admin")
             throw new Error("Unauthorized");
+    }
+    async register(b) {
+        const existing = await admin_model_1.default.findOne({ email: b.email });
+        if (existing) {
+            this.setStatus(409);
+            throw new Error("Admin already exists");
+        }
+        const hashed = await bcrypt_1.default.hash(b.password, 10);
+        await admin_model_1.default.create({ email: b.email, password: hashed });
+        return { message: "Admin registered" };
     }
     async login(b) {
         const a = await admin_model_1.default.findOne({ email: b.email });
@@ -89,6 +101,13 @@ let AdminController = class AdminController extends tsoa_1.Controller {
     }
 };
 exports.AdminController = AdminController;
+__decorate([
+    (0, tsoa_1.Post)("register"),
+    __param(0, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "register", null);
 __decorate([
     (0, tsoa_1.Post)("login"),
     __param(0, (0, tsoa_1.Body)()),

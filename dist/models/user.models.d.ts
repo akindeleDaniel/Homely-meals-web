@@ -1,28 +1,37 @@
 import mongoose from "mongoose";
 declare const _default: mongoose.Model<{
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, {
     timestamps: true;
 }> & Omit<{
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -32,27 +41,36 @@ declare const _default: mongoose.Model<{
 }, mongoose.Schema<any, mongoose.Model<any, any, any, any, any, any, any>, {}, {}, {}, {}, {
     timestamps: true;
 }, {
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, mongoose.ResolveSchemaOptions<{
     timestamps: true;
 }>> & Omit<{
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -63,21 +81,27 @@ declare const _default: mongoose.Model<{
     [path: string]: mongoose.SchemaDefinitionProperty<undefined, any, any>;
 } | {
     [x: string]: mongoose.SchemaDefinitionProperty<any, any, mongoose.Document<unknown, {}, {
-        firstName?: string | null | undefined;
-        lastName?: string | null | undefined;
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        orders: mongoose.Types.ObjectId[];
+        declinedOrders: mongoose.Types.ObjectId[];
         phoneNumber?: string | null | undefined;
-        password?: string | null | undefined;
-        email?: string | null | undefined;
+        cart?: mongoose.Types.ObjectId | null | undefined;
     } & mongoose.DefaultTimestampProps, {
         id: string;
     }, mongoose.ResolveSchemaOptions<{
         timestamps: true;
     }>> & Omit<{
-        firstName?: string | null | undefined;
-        lastName?: string | null | undefined;
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        orders: mongoose.Types.ObjectId[];
+        declinedOrders: mongoose.Types.ObjectId[];
         phoneNumber?: string | null | undefined;
-        password?: string | null | undefined;
-        email?: string | null | undefined;
+        cart?: mongoose.Types.ObjectId | null | undefined;
     } & mongoose.DefaultTimestampProps & {
         _id: mongoose.Types.ObjectId;
     } & {
@@ -86,11 +110,14 @@ declare const _default: mongoose.Model<{
         id: string;
     }> | undefined;
 }, {
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
@@ -98,11 +125,14 @@ declare const _default: mongoose.Model<{
 } & {
     __v: number;
 }>, {
-    firstName?: string | null | undefined;
-    lastName?: string | null | undefined;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    orders: mongoose.Types.ObjectId[];
+    declinedOrders: mongoose.Types.ObjectId[];
     phoneNumber?: string | null | undefined;
-    password?: string | null | undefined;
-    email?: string | null | undefined;
+    cart?: mongoose.Types.ObjectId | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {

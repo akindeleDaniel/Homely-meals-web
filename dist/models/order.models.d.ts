@@ -8,6 +8,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -23,6 +24,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -40,6 +42,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -61,6 +64,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -74,6 +78,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -91,6 +96,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -113,6 +119,7 @@ declare const _default: mongoose.Model<{
         total: number;
         deliveryType: "pickup" | "delivery";
         status: string;
+        userId?: mongoose.Types.ObjectId | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
@@ -130,6 +137,7 @@ declare const _default: mongoose.Model<{
         total: number;
         deliveryType: "pickup" | "delivery";
         status: string;
+        userId?: mongoose.Types.ObjectId | null | undefined;
         deliveryAddress?: string | null | undefined;
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
@@ -150,6 +158,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
@@ -169,6 +178,7 @@ declare const _default: mongoose.Model<{
     total: number;
     deliveryType: "pickup" | "delivery";
     status: string;
+    userId?: mongoose.Types.ObjectId | null | undefined;
     deliveryAddress?: string | null | undefined;
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;

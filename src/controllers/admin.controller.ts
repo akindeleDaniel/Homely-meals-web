@@ -11,8 +11,22 @@ export class AdminController extends Controller {
 
   private auth(req: any) {
     const token = req.headers.authorization?.split(" ")[1];
+    if (!token) throw new Error("Unauthorized");
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     if (decoded.role !== "admin") throw new Error("Unauthorized");
+  }
+
+  @Post("register")
+  async register(@Body() b: { email: string; password: string }) {
+    const existing = await Admin.findOne({ email: b.email });
+    if (existing) {
+      this.setStatus(409);
+      throw new Error("Admin already exists");
+    }
+
+    const hashed = await bcrypt.hash(b.password, 10);
+    await Admin.create({ email: b.email, password: hashed });
+    return { message: "Admin registered" };
   }
 
   @Post("login")

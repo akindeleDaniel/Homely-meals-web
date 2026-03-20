@@ -30,6 +30,14 @@ const cartSchema = new mongoose_1.default.Schema({
         required: true,
         default: 0,
     },
+    currency: {
+        type: String,
+        default: "₦",
+    },
+    itemsText: {
+        type: String,
+        default: "",
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Cart", cartSchema);
 //# sourceMappingURL=cart.model.js.map

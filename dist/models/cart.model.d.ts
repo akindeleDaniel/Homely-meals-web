@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 declare const _default: mongoose.Model<{
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -29,6 +31,8 @@ declare const _default: mongoose.Model<{
 }, mongoose.Document<unknown, {}, {
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -58,6 +62,8 @@ declare const _default: mongoose.Model<{
 }> & Omit<{
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -91,6 +97,8 @@ declare const _default: mongoose.Model<{
 }, {
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -116,6 +124,8 @@ declare const _default: mongoose.Model<{
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -145,6 +155,8 @@ declare const _default: mongoose.Model<{
 }>> & Omit<{
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -179,6 +191,8 @@ declare const _default: mongoose.Model<{
     [x: string]: mongoose.SchemaDefinitionProperty<any, any, mongoose.Document<unknown, {}, {
         userId: mongoose.Types.ObjectId;
         subtotal: number;
+        currency: string;
+        itemsText: string;
         items?: {
             proteins: mongoose.Types.DocumentArray<{
                 name?: string | null | undefined;
@@ -208,6 +222,8 @@ declare const _default: mongoose.Model<{
     }>> & Omit<{
         userId: mongoose.Types.ObjectId;
         subtotal: number;
+        currency: string;
+        itemsText: string;
         items?: {
             proteins: mongoose.Types.DocumentArray<{
                 name?: string | null | undefined;
@@ -240,6 +256,8 @@ declare const _default: mongoose.Model<{
 }, {
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
@@ -271,6 +289,8 @@ declare const _default: mongoose.Model<{
 }>, {
     userId: mongoose.Types.ObjectId;
     subtotal: number;
+    currency: string;
+    itemsText: string;
     items?: {
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;

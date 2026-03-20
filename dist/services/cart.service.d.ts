@@ -17,73 +17,48 @@ export interface Cart {
     itemsText: string;
 }
 export declare class CartService {
-    private static cart;
-    static getCart(userId: string): Promise<import("mongoose").Document<unknown, {}, {
-        userId: import("mongoose").Types.ObjectId;
+    static getCart(userId: string): Promise<{
+        items: {
+            proteins: {
+                name: Protein;
+                quantity: number;
+            }[] | undefined;
+            combos: {
+                name: Combo;
+                quantity: number;
+            }[] | undefined;
+        };
         subtotal: number;
-        items?: {
-            proteins: import("mongoose").Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-            combos: import("mongoose").Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-        } | null | undefined;
-    } & import("mongoose").DefaultTimestampProps, {
-        id: string;
-    }, {
-        timestamps: true;
-    }> & Omit<{
-        userId: import("mongoose").Types.ObjectId;
-        subtotal: number;
-        items?: {
-            proteins: import("mongoose").Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-            combos: import("mongoose").Types.DocumentArray<{
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }, import("mongoose").Types.Subdocument<import("bson").ObjectId, unknown, {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }> & {
-                name?: string | null | undefined;
-                quantity?: number | null | undefined;
-            }>;
-        } | null | undefined;
-    } & import("mongoose").DefaultTimestampProps & {
-        _id: import("mongoose").Types.ObjectId;
-    } & {
-        __v: number;
-    }, "id"> & {
-        id: string;
+        currency: string;
+        itemsText: string;
     }>;
-    static add(input: {
+    static add(userId: string, input: {
         proteins?: proteinItems[];
         combos?: comboItems[];
-    }): Cart;
-    static get(): Cart;
-    static clear(): void;
+    }): Promise<{
+        items: {
+            proteins?: proteinItems[];
+            combos?: comboItems[];
+        };
+        subtotal: number;
+        currency: string;
+        itemsText: string;
+    }>;
+    static get(userId: string): Promise<{
+        items: {
+            proteins: {
+                name: Protein;
+                quantity: number;
+            }[] | undefined;
+            combos: {
+                name: Combo;
+                quantity: number;
+            }[] | undefined;
+        };
+        subtotal: number;
+        currency: string;
+        itemsText: string;
+    }>;
+    static clear(userId: string): Promise<void>;
 }
 //# sourceMappingURL=cart.service.d.ts.map

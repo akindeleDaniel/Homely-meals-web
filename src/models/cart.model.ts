@@ -27,6 +27,14 @@ const cartSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
+    currency: {
+      type: String,
+      default: "₦",
+    },
+    itemsText: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

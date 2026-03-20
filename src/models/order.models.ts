@@ -2,12 +2,13 @@ import mongoose from "mongoose";
 
   const OrderSchema = new mongoose.Schema(
     {
-      userEmail: { type: String},
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      userEmail: { type: String },
       phoneNumber: { type: String, required: true },
 
       items:{
         type: mongoose.Schema.Types.Mixed,
-      required: true,  
+      required: true,
       },
 
       subtotal: { type: Number,required: true },

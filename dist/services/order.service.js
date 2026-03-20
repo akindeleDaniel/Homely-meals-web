@@ -5,10 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOrder = void 0;
 const order_models_1 = __importDefault(require("../models/order.models"));
+const user_models_1 = __importDefault(require("../models/user.models"));
 const delivery_1 = require("../constants/delivery");
 const cart_service_1 = require("./cart.service");
 const createOrder = async (data) => {
-    const cart = cart_service_1.CartService.get();
+    const cart = data.cart;
+    if (!cart || !cart.items || cart.subtotal === undefined) {
+        throw new Error("Cart is empty");
+    }
     let deliveryFee = 0;
     if (data.deliveryType === "delivery") {
         if (!data.deliveryArea || !data.deliveryAddress) {
@@ -18,6 +22,7 @@ const createOrder = async (data) => {
     }
     const total = cart.subtotal + deliveryFee;
     const order = await order_models_1.default.create({
+        userId: data.userId,
         phoneNumber: data.phoneNumber,
         items: cart.items,
         subtotal: cart.subtotal,
@@ -27,19 +32,24 @@ const createOrder = async (data) => {
         pickupLocation: data.deliveryType === "pickup" ? "Perfect Touch (GK)" : undefined,
         total,
         deliveryWindow: delivery_1.DELIVERY_WINDOW,
-        status: "pending",
+        status: "paid",
     });
-    cart_service_1.CartService.clear();
+    if (data.userId) {
+        await user_models_1.default.findByIdAndUpdate(data.userId, {
+            $push: { orders: order._id },
+        });
+        await cart_service_1.CartService.clear(data.userId);
+    }
     const items = order.items;
     return {
         email: data.email,
         phoneNumber: order.phoneNumber,
         items: {
-            proteins: items.proteins?.map(p => ({
+            proteins: items.proteins?.map((p) => ({
                 name: p.name,
                 quantity: p.quantity,
             })) ?? [],
-            combos: items.combos?.map(c => ({
+            combos: items.combos?.map((c) => ({
                 name: c.name,
                 quantity: c.quantity,
             })) ?? [],

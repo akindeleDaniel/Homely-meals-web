@@ -1,6 +1,12 @@
 import { Controller } from "tsoa";
 export declare class AdminController extends Controller {
     private auth;
+    register(b: {
+        email: string;
+        password: string;
+    }): Promise<{
+        message: string;
+    }>;
     login(b: any): Promise<{
         message: string;
         token?: undefined;
