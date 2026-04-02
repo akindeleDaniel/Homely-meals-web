@@ -1,0 +1,141 @@
+:root {
+  --primary: #ff8c00;
+  --primary-dark: #dc6f00;
+  --text: #2a1b11;
+  --background: #fff7ed;
+  --surface: #ffffff;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin:0;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(140deg, #ff9b2d 0%, #ff6b00 45%, #ffa04f 100%);
+  color:#2a1b11;
+}
+
+.page-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.hero {
+  border-radius: 22px;
+  background: #fff5e5;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom:18px;
+}
+
+.branding {
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo {
+  border-radius: 50%;
+  width:72px;
+  height:72px;
+  object-fit:cover;
+}
+
+.hero h1 {
+  margin:0;
+  font-family:'Montserrat', sans-serif;
+  font-size:30px;
+  color:#d35200;
+}
+
+.branch {
+  margin:4px 0 0;
+  color:#8f4c04;
+  font-weight:500;
+}
+
+.hero-subtitle {
+  margin-top: 16px;
+  font-size: 1.05rem;
+  font-weight:500;
+  color:#6f3b11;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid rgba(50, 20, 0, 0.13);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin-top:0;
+  color:#c05b04;
+}
+
+.combo-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top:12px;
+}
+
+.combo-item {
+  background: #fff2de;
+  border: 1px solid #f2b46f;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.combo-item h3 {
+  font-size:1rem;
+  margin: 0 0 6px;
+}
+
+.combo-item p {
+  margin:0;
+  font-weight: 600;
+  color:#8a3f1f;
+}
+
+.info-card ul {
+  margin:0;
+  padding-left: 20px;
+}
+
+.info-card li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.cta-card {
+  text-align:center;
+}
+
+.btn {
+  display:inline-block;
+  background: linear-gradient(90deg,#ff8c00,#ff5a00);
+  color:#fff;
+  text-decoration:none;
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-weight:700;
+  box-shadow: 0 8px 18px rgba(0,0,0,.22);
+}
+
+code {
+  background: #fff1d8;
+  padding:2px 6px;
+  border-radius:4px;
+  font-family:'Courier New', monospace;
+  font-size:.95rem;
+}
+
+@media (max-width:700px) {
+  .page-wrap { padding: 14px; }
+  .hero { padding: 16px; }
+}

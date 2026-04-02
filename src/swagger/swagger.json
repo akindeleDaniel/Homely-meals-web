@@ -7,6 +7,22 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"LoginRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Protein": {
 				"type": "string",
 				"enum": [
@@ -64,45 +80,6 @@
 				],
 				"type": "object"
 			},
-			"Cart": {
-				"properties": {
-					"items": {
-						"properties": {
-							"combos": {
-								"items": {
-									"$ref": "#/components/schemas/comboItems"
-								},
-								"type": "array"
-							},
-							"proteins": {
-								"items": {
-									"$ref": "#/components/schemas/proteinItems"
-								},
-								"type": "array"
-							}
-						},
-						"type": "object"
-					},
-					"subtotal": {
-						"type": "number",
-						"format": "double"
-					},
-					"currency": {
-						"type": "string"
-					},
-					"itemsText": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"items",
-					"subtotal",
-					"currency",
-					"itemsText"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"DeliveryArea": {
 				"type": "string",
 				"enum": [
@@ -112,6 +89,9 @@
 			},
 			"OrderDTO": {
 				"properties": {
+					"email": {
+						"type": "string"
+					},
 					"phoneNumber": {
 						"type": "string"
 					},
@@ -130,6 +110,7 @@
 					}
 				},
 				"required": [
+					"email",
 					"phoneNumber",
 					"deliveryType"
 				],
@@ -185,6 +166,9 @@
 						"application/json": {
 							"schema": {
 								"properties": {
+									"phoneNumber": {
+										"type": "string"
+									},
 									"lastName": {
 										"type": "string"
 									},
@@ -199,6 +183,7 @@
 									}
 								},
 								"required": [
+									"phoneNumber",
 									"lastName",
 									"firstName",
 									"password",
@@ -214,6 +199,64 @@
 		"/main/login": {
 			"post": {
 				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"user": {
+											"properties": {
+												"fullName": {
+													"type": "string"
+												},
+												"id": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"fullName",
+												"id"
+											],
+											"type": "object"
+										},
+										"token": {},
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"user",
+										"token",
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Main"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/main/welcome": {
+			"get": {
+				"operationId": "Welcome",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -238,29 +281,7 @@
 					"Main"
 				],
 				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"properties": {
-									"password": {
-										"type": "string"
-									},
-									"email": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"password",
-									"email"
-								],
-								"type": "object"
-							}
-						}
-					}
-				}
+				"parameters": []
 			}
 		},
 		"/main/cart/add": {
@@ -272,7 +293,42 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Cart"
+									"properties": {
+										"itemsText": {
+											"type": "string"
+										},
+										"currency": {
+											"type": "string"
+										},
+										"subtotal": {
+											"type": "number",
+											"format": "double"
+										},
+										"items": {
+											"properties": {
+												"combos": {
+													"items": {
+														"$ref": "#/components/schemas/comboItems"
+													},
+													"type": "array"
+												},
+												"proteins": {
+													"items": {
+														"$ref": "#/components/schemas/proteinItems"
+													},
+													"type": "array"
+												}
+											},
+											"type": "object"
+										}
+									},
+									"required": [
+										"itemsText",
+										"currency",
+										"subtotal",
+										"items"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -289,7 +345,7 @@
 						"application/json": {
 							"schema": {
 								"properties": {
-									"combo": {
+									"combos": {
 										"items": {
 											"$ref": "#/components/schemas/comboItems"
 										},
@@ -303,6 +359,154 @@
 									}
 								},
 								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/main/cart": {
+			"get": {
+				"operationId": "GetCart",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"itemsText": {
+											"type": "string"
+										},
+										"currency": {
+											"type": "string"
+										},
+										"subtotal": {
+											"type": "number",
+											"format": "double"
+										},
+										"items": {
+											"properties": {
+												"combos": {
+													"items": {
+														"properties": {
+															"quantity": {
+																"type": "number",
+																"format": "double"
+															},
+															"name": {
+																"type": "string",
+																"enum": [
+																	"Stir-Fried Spag + Sardine & Fried Fish",
+																	"Stir-Fried Spag + Egg & Fried Fish",
+																	"Stir-Fried Spag + Egg",
+																	"Stir-Fried Spag + Beef",
+																	"Stir-Fried Spag + Fish & Plantain",
+																	"Stir-Fried Spag + Dodo & Beef"
+																]
+															}
+														},
+														"required": [
+															"quantity",
+															"name"
+														],
+														"type": "object"
+													},
+													"type": "array"
+												},
+												"proteins": {
+													"items": {
+														"properties": {
+															"quantity": {
+																"type": "number",
+																"format": "double"
+															},
+															"name": {
+																"type": "string",
+																"enum": [
+																	"Egg",
+																	"Beef",
+																	"Fish",
+																	"Plantain + Fish",
+																	"Chicken",
+																	"Sardine",
+																	"coleslaw"
+																]
+															}
+														},
+														"required": [
+															"quantity",
+															"name"
+														],
+														"type": "object"
+													},
+													"type": "array"
+												}
+											},
+											"required": [
+												"combos",
+												"proteins"
+											],
+											"type": "object"
+										}
+									},
+									"required": [
+										"itemsText",
+										"currency",
+										"subtotal",
+										"items"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Main"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/main/checkout": {
+			"post": {
+				"operationId": "Checkout",
+				"responses": {
+					"200": {
+						"description": "Payment Initialized",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"orderRef": {
+											"type": "string"
+										},
+										"paymentUrl": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"orderRef",
+										"paymentUrl"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Main"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OrderDTO"
 							}
 						}
 					}
@@ -342,7 +546,22 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/OrderDTO"
+								"allOf": [
+									{
+										"$ref": "#/components/schemas/OrderDTO"
+									},
+									{
+										"properties": {
+											"orderRef": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"orderRef"
+										],
+										"type": "object"
+									}
+								]
 							}
 						}
 					}
@@ -462,6 +681,58 @@
 				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/admin/register": {
+			"post": {
+				"operationId": "Register",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"password": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"password",
+									"email"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/admin/login": {

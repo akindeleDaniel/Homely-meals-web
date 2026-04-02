@@ -25,6 +25,7 @@ const telegram_1 = require("../utils/telegram");
 const dotenv_1 = __importDefault(require("dotenv"));
 const order_service_1 = require("../services/order.service");
 const paystack_service_1 = require("../services/paystack.service");
+const delivery_1 = require("../constants/delivery");
 const uuid_1 = require("uuid");
 dotenv_1.default.config();
 let MainController = class MainController extends tsoa_1.Controller {
@@ -117,8 +118,22 @@ let MainController = class MainController extends tsoa_1.Controller {
                 this.setStatus(400);
                 throw new Error("Delivery area and address are required for delivery");
             }
-            deliveryFee = 500;
+            if (!delivery_1.DELIVERY_FEES[body.deliveryArea]) {
+                this.setStatus(400);
+                throw new Error("Invalid delivery area. Choose either 'gk' or 'outside-gk'");
+            }
+            deliveryFee = delivery_1.DELIVERY_FEES[body.deliveryArea];
             total += deliveryFee;
+        }
+        else if (body.deliveryType === "pickup") {
+            if (body.deliveryArea || body.deliveryAddress) {
+                this.setStatus(400);
+                throw new Error("Pickup should not include delivery area or address");
+            }
+        }
+        else {
+            this.setStatus(400);
+            throw new Error("Invalid delivery type. Choose 'pickup' or 'delivery'");
         }
         const orderRef = `ORD_${(0, uuid_1.v4)()}`;
         const paystackResponse = await (0, paystack_service_1.initializePaystack)({
