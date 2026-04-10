@@ -79,27 +79,53 @@ body {
 
 .combo-grid {
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
   margin-top:12px;
 }
 
 .combo-item {
   background: #fff2de;
   border: 1px solid #f2b46f;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.combo-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.15);
+}
+
+.combo-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #f5d3ae;
+}
+
+.combo-item-content {
+  padding: 16px;
 }
 
 .combo-item h3 {
-  font-size:1rem;
-  margin: 0 0 6px;
+  font-size:1.05rem;
+  margin: 0 0 8px;
+  color: #79310d;
 }
 
-.combo-item p {
+.combo-price {
   margin:0;
-  font-weight: 600;
-  color:#8a3f1f;
+  font-weight: 700;
+  color:#a64100;
+}
+
+.combo-description {
+  margin: 8px 0 0;
+  color:#5b3823;
+  line-height: 1.55;
 }
 
 .info-card ul {

@@ -1,7 +1,7 @@
 export type DeliveryArea = "gk" | "outside-gk";
 
 export const DELIVERY_FEES: Record<DeliveryArea, number> = {
-  gk: 500,
+  "gk": 500,
   "outside-gk": 1500,
 };
 

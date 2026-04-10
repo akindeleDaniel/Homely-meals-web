@@ -2,16 +2,19 @@ import mongoose from "mongoose";
 declare const _default: mongoose.Model<{
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 }, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 }, {
     id: string;
 }, mongoose.DefaultSchemaOptions> & Omit<{
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 } & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -21,14 +24,17 @@ declare const _default: mongoose.Model<{
 }, mongoose.Schema<any, mongoose.Model<any, any, any, any, any, any, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, {
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 }, mongoose.Document<unknown, {}, {
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 }, {
     id: string;
 }, mongoose.ResolveSchemaOptions<mongoose.DefaultSchemaOptions>> & Omit<{
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 } & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -41,11 +47,13 @@ declare const _default: mongoose.Model<{
     [x: string]: mongoose.SchemaDefinitionProperty<any, any, mongoose.Document<unknown, {}, {
         email?: string | null | undefined;
         password?: string | null | undefined;
+        fullname?: string | null | undefined;
     }, {
         id: string;
     }, mongoose.ResolveSchemaOptions<mongoose.DefaultSchemaOptions>> & Omit<{
         email?: string | null | undefined;
         password?: string | null | undefined;
+        fullname?: string | null | undefined;
     } & {
         _id: mongoose.Types.ObjectId;
     } & {
@@ -56,6 +64,7 @@ declare const _default: mongoose.Model<{
 }, {
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 } & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -63,6 +72,7 @@ declare const _default: mongoose.Model<{
 }>, {
     email?: string | null | undefined;
     password?: string | null | undefined;
+    fullname?: string | null | undefined;
 } & {
     _id: mongoose.Types.ObjectId;
 } & {

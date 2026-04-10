@@ -2,6 +2,7 @@ import { Controller } from "tsoa";
 export declare class AdminController extends Controller {
     private auth;
     register(b: {
+        fullname: string;
         email: string;
         password: string;
     }): Promise<{

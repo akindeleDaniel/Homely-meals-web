@@ -8,15 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="app.js" defer></script>
 </head>
 <body>
   <div class="page-wrap">
     <header class="hero">
       <div class="branding">
-        <img class="logo" src="https://via.placeholder.com/80x80?text=HM" alt="Homely Made Meals" />
+        <img class="logo" src="assets/logo.png" alt="Homely Made Meals logo" onerror="this.src='https://via.placeholder.com/80x80?text=HM'" />
         <div>
           <h1>Homely Made Meals</h1>
-          <p class="branch">Wednesday Stir Fry (special branch)</p>
+          <h2 class="branch">Wednesday Stir Fry</h2>
         </div>
       </div>
       <p class="hero-subtitle">Special Wednesday Stir Fry combos delivered fresh with extras you love!</p>
@@ -24,32 +25,7 @@
 
     <section class="card menu-card">
       <h2>Stir Fry Combos</h2>
-      <div class="combo-grid">
-        <article class="combo-item">
-          <h3>Plain Stir-Fry Spaghetti</h3>
-          <p>From ₦2,000</p>
-        </article>
-        <article class="combo-item">
-          <h3>Stir-Fry + Egg</h3>
-          <p>From ₦2,500</p>
-        </article>
-        <article class="combo-item">
-          <h3>Stir-Fry + Beef</h3>
-          <p>From ₦2,500</p>
-        </article>
-        <article class="combo-item">
-          <h3>Stir-Fry + Fish</h3>
-          <p>From ₦2,700</p>
-        </article>
-        <article class="combo-item">
-          <h3>Stir-Fry + Sardine</h3>
-          <p>From ₦2,500</p>
-        </article>
-        <article class="combo-item">
-          <h3>Stir-Fry + Fish & Plantain (Dodo)</h3>
-          <p>From ₦3,000</p>
-        </article>
-      </div>
+      <div id="comboGrid" class="combo-grid"></div>
     </section>
 
     <section class="card info-card">

@@ -17,7 +17,7 @@ export class AdminController extends Controller {
   }
 
   @Post("register")
-  async register(@Body() b: { email: string; password: string }) {
+  async register(@Body() b: { name: string; email: string; password: string; }) {
     const existing = await Admin.findOne({ email: b.email });
     if (existing) {
       this.setStatus(409);
@@ -25,7 +25,7 @@ export class AdminController extends Controller {
     }
 
     const hashed = await bcrypt.hash(b.password, 10);
-    await Admin.create({ email: b.email, password: hashed });
+    await Admin.create({ name: b.name, email: b.email, password: hashed });
     return { message: "Admin registered" };
   }
 
@@ -41,12 +41,14 @@ export class AdminController extends Controller {
       return { message: "Invalid credentials" };
     }
 
+    const adminName = a.name ?? a.fullname ?? "Admin";
     return {
       token: jwt.sign(
-        { email: a.email, role: "admin" },
+        { email: a.email, role: "admin", name: adminName },
         process.env.JWT_SECRET!,
         { expiresIn: "1d" }
       ),
+      message: `Welcome ${adminName}`,
     };
   }
 
