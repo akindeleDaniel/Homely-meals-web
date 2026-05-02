@@ -38,7 +38,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
             throw new Error("Admin already exists");
         }
         const hashed = await bcrypt_1.default.hash(b.password, 10);
-        await admin_model_1.default.create({ fullname: b.fullname, email: b.email, password: hashed });
+        await admin_model_1.default.create({ name: b.name, email: b.email, password: hashed });
         return { message: "Admin registered" };
     }
     async login(b) {
@@ -50,8 +50,10 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         if (!ok) {
             return { message: "Invalid credentials" };
         }
+        const adminName = a.name ?? a.fullname ?? "Admin";
         return {
-            token: jsonwebtoken_1.default.sign({ email: a.email, role: "admin" }, process.env.JWT_SECRET, { expiresIn: "1d" }),
+            token: jsonwebtoken_1.default.sign({ email: a.email, role: "admin", name: adminName }, process.env.JWT_SECRET, { expiresIn: "1d" }),
+            message: `Welcome ${adminName}`,
         };
     }
     async get(r) {

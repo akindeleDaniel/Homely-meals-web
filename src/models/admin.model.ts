@@ -4,6 +4,7 @@ export default mongoose.model(
   "Admin",
   new mongoose.Schema({
     name: String,
+    fullname: String,
     email: { type: String, unique: true },
     password: String,
   })

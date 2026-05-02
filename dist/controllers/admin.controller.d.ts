@@ -2,7 +2,7 @@ import { Controller } from "tsoa";
 export declare class AdminController extends Controller {
     private auth;
     register(b: {
-        fullname: string;
+        name: string;
         email: string;
         password: string;
     }): Promise<{
@@ -13,7 +13,7 @@ export declare class AdminController extends Controller {
         token?: undefined;
     } | {
         token: string;
-        message?: undefined;
+        message: string;
     }>;
     get(r: any): Promise<{
         id: string;
