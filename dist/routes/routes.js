@@ -253,7 +253,7 @@ function RegisterRoutes(app) {
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     const argsAdminController_register = {
-        b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "password": { "dataType": "string", "required": true }, "email": { "dataType": "string", "required": true } } },
+        b: { "in": "body", "name": "b", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "password": { "dataType": "string", "required": true }, "email": { "dataType": "string", "required": true }, "name": { "dataType": "string", "required": true } } },
     };
     app.post('/admin/register', ...((0, runtime_1.fetchMiddlewares)(admin_controller_1.AdminController)), ...((0, runtime_1.fetchMiddlewares)(admin_controller_1.AdminController.prototype.register)), async function AdminController_register(request, response, next) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

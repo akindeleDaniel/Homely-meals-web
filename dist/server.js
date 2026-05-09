@@ -47,6 +47,7 @@ app_1.app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.
 (async () => {
     await (0, db_1.connectDB)();
     app_1.app.listen(3000, () => {
+        console.log("Connected to database");
         console.log("Server running on http://localhost:3000");
         console.log("Swagger docs on http://localhost:3000/docs");
     });

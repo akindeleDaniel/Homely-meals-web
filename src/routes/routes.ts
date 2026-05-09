@@ -326,7 +326,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsAdminController_register: Record<string, TsoaRoute.ParameterSchema> = {
-                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}}},
+                b: {"in":"body","name":"b","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},
         };
         app.post('/admin/register',
             ...(fetchMiddlewares<RequestHandler>(AdminController)),

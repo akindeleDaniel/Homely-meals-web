@@ -11,7 +11,21 @@ const routes_1 = require("./routes/routes");
 exports.app = (0, express_1.default)();
 exports.app.use((0, cors_1.default)());
 exports.app.use(express_1.default.json());
+// Serve static files from the React build
+const clientPath = "C:\\Users\\Daniel\\.vscode\\Homely-meals-web\\client\\dist";
+console.log("Serving static files from:", clientPath);
+exports.app.use(express_1.default.static(clientPath));
+// API routes
 (0, routes_1.RegisterRoutes)(exports.app);
+// Test route
+exports.app.get('/test', (req, res) => {
+    res.send('Test route works');
+});
+// Catch all handler: send back React's index.html file for client-side routing
+exports.app.use((req, res) => {
+    console.log("Serving index.html for", req.path);
+    res.sendFile("C:\\Users\\Daniel\\.vscode\\Homely-meals-web\\client\\dist\\index.html");
+});
 exports.app.use((err, req, res, _next) => {
     if (err instanceof tsoa_1.ValidateError) {
         console.error("Validation Error:", err.fields);
