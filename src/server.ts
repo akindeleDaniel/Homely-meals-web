@@ -6,15 +6,16 @@ import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "./swagger/swagger.json";
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 (async () => {
   await connectDB();
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log("Connected to database");
-  console.log("Server running on http://localhost:3000")
-  console.log("Swagger docs on http://localhost:3000/docs")
+  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Swagger docs on http://localhost:${PORT}/docs`)
 })
 })();
+

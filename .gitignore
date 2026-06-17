@@ -1,4 +1,7 @@
-# ignorre .env file
+# ignore .env files
 .env
 # ignore node modules
 node_modules/
+/client/node_modules/
+/client/.next/
+/client/out/

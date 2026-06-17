@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cd client && npm run build && cd .. && tsc",
+    "build:client": "cd client && npm run build",
     "dev": "cd client && npm run dev",
     "dev:server": "tsc && nodemon dist/server.js",
+    "format:client": "cd client && npm run format",
+    "lint:client": "cd client && npm run lint",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec"
   },

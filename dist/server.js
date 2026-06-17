@@ -42,14 +42,14 @@ const app_1 = require("./app");
 const db_1 = require("./config/db");
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swaggerDocument = __importStar(require("./swagger/swagger.json"));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app_1.app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocument));
 (async () => {
     await (0, db_1.connectDB)();
-    app_1.app.listen(3000, () => {
+    app_1.app.listen(PORT, () => {
         console.log("Connected to database");
-        console.log("Server running on http://localhost:3000");
-        console.log("Swagger docs on http://localhost:3000/docs");
+        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Swagger docs on http://localhost:${PORT}/docs`);
     });
 })();
 //# sourceMappingURL=server.js.map
