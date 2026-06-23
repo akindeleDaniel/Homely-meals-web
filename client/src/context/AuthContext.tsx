@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 export interface User {
   id: string;
@@ -27,16 +27,26 @@ export interface RegisterData {
   phoneNumber?: string;
 }
 
-export interface LoginData {
-  email: string;
-  password: string;
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load token from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      // TODO: In production, validate token with backend
+      setUser({
+        id: 'persisted_user',
+        email: '',
+        firstName: 'Returning',
+        lastName: 'User',
+      });
+    }
+    setIsLoading(false);
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -48,16 +58,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to login');
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to login');
       }
 
       const data = await res.json();
       const token = data.token;
 
-      // Store token in localStorage
       localStorage.setItem('authToken', token);
 
-      // Decode user info from token or set dummy user
       setUser({
         id: data.userId || 'user_' + Date.now(),
         email,
@@ -83,16 +92,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to register');
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to register');
       }
 
       const response = await res.json();
       const token = response.token;
 
-      // Store token
       localStorage.setItem('authToken', token);
 
-      // Set user
       setUser({
         id: response.userId || 'user_' + Date.now(),
         email: data.email,
