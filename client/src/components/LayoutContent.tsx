@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const { getTotalItems } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
   const totalItems = getTotalItems();
 
   return (
@@ -27,9 +29,23 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
             <Link href="/contact" className="transition hover:text-orange-600">
               Contact
             </Link>
-            <Link href="/login" className="transition hover:text-orange-600">
-              Login
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <span className="text-amber-700">Hi, {user?.firstName}</span>
+                <button 
+                  onClick={logout}
+                  className="transition hover:text-orange-600"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="transition hover:text-orange-600">
+                Login
+              </Link>
+            )}
+
             <Link href="/cart" className="relative transition hover:text-orange-600">
               Cart
               {totalItems > 0 && (
