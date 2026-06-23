@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { fetchMenuHome, type MenuResponse } from '@/lib/api';
+import { useCart } from '@/context/CartContext';
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<MenuResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const loadMenu = async () => {
@@ -24,6 +26,17 @@ export default function MenuPage() {
 
     loadMenu();
   }, []);
+
+  const handleAddToCart = (item: any, quantity: number = 1) => {
+    addItem({
+      id: item.name || 'base-meal',
+      name: item.name || 'Base Meal',
+      price: item.price,
+      quantity,
+      type: 'base' as const,
+    });
+    alert(`${item.name || 'Item'} added to cart!`); // Simple feedback, can be replaced with toast later
+  };
 
   if (loading) {
     return (
@@ -67,13 +80,13 @@ export default function MenuPage() {
             <span className="text-2xl font-bold text-red-600">
               {menu.baseMeal.currency} {menu.baseMeal.price.toLocaleString()}
             </span>
-            <Link
-              href="/meals/home"
+            <button
+              onClick={() => handleAddToCart(menu.baseMeal)}
               className="rounded-full bg-red-600 px-4 py-2 transition hover:bg-red-700 shadow-md hover:shadow-lg"
               style={{ color: '#FFFFFF' }}
             >
-              Order now
-            </Link>
+              Add to Cart
+            </button>
           </div>
         </article>
 
@@ -88,13 +101,13 @@ export default function MenuPage() {
               <span className="text-2xl font-bold text-red-600">
                 {menu.baseMeal.currency} {combo.price.toLocaleString()}
               </span>
-              <Link
-                href="/meals/home"
+              <button
+                onClick={() => handleAddToCart(combo)}
                 className="rounded-full bg-red-600 px-4 py-2 transition hover:bg-red-700 shadow-md hover:shadow-lg"
                 style={{ color: '#FFFFFF' }}
               >
-                Order now
-              </Link>
+                Add to Cart
+              </button>
             </div>
           </article>
         ))}
