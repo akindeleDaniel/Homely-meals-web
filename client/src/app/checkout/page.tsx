@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
   const { cart } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: user?.email || '',
     phoneNumber: user?.phoneNumber || '',
@@ -17,6 +19,20 @@ export default function CheckoutPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login?redirect=/checkout');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  if (authLoading) {
+    return <div className="p-10 text-center">Loading authentication...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   if (cart.items.length === 0) {
     return (
@@ -49,17 +65,22 @@ export default function CheckoutPage() {
           ...formData,
           items: cart.items,
           total: cart.total,
+          userId: user?.id,
         }),
       });
 
       if (!res.ok) {
-        throw new Error('Checkout failed');
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Checkout failed');
       }
 
       setMessage('Order placed successfully!');
-      setTimeout(() => (window.location.href = '/'), 2000);
+      // Clear cart after successful order
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Checkout failed');
+      setMessage(error instanceof Error ? error.message : 'Checkout failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
