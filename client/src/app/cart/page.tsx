@@ -2,9 +2,28 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function CartPage() {
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login?redirect=/cart');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
+    return <div className="p-10 text-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect
+  }
 
   if (cart.items.length === 0) {
     return (
