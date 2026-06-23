@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { fetchMenuHome, type MenuResponse } from '@/lib/api';
+import { useCart } from '@/context/CartContext';
 
 export default function MealDetailPage({ params }: { params: { id: string } }) {
   const [meal, setMeal] = useState<MenuResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const loadMeal = async () => {
@@ -24,6 +26,17 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
 
     loadMeal();
   }, [params.id]);
+
+  const handleAddToCart = (item: any, type: 'protein' | 'combo' | 'base' = 'base') => {
+    addItem({
+      id: `${type}-${item.name || 'item'}-${Date.now()}`,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      type,
+    });
+    alert(`${item.name} added to cart!`);
+  };
 
   if (loading) {
     return (
@@ -78,6 +91,12 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
             <p className="mt-4 text-2xl font-bold text-red-600">
               {meal.baseMeal.currency} {meal.baseMeal.price.toLocaleString()}
             </p>
+            <button
+              onClick={() => handleAddToCart(meal.baseMeal, 'base')}
+              className="mt-4 w-full rounded-lg bg-red-600 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+            >
+              Add Base Meal to Cart
+            </button>
           </div>
 
           <div className="rounded-2xl bg-orange-50 p-6">
@@ -100,6 +119,12 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
                   <span className="font-bold text-red-600">
                     + {meal.baseMeal.currency} {protein.price.toLocaleString()}
                   </span>
+                  <button
+                    onClick={() => handleAddToCart(protein, 'protein')}
+                    className="ml-4 rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700"
+                  >
+                    Add
+                  </button>
                 </div>
               ))}
             </div>
@@ -119,6 +144,12 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
                   <span className="font-bold text-red-600">
                     {meal.baseMeal.currency} {combo.price.toLocaleString()}
                   </span>
+                  <button
+                    onClick={() => handleAddToCart(combo, 'combo')}
+                    className="ml-4 rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700"
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               ))}
             </div>
@@ -126,12 +157,13 @@ export default function MealDetailPage({ params }: { params: { id: string } }) {
         )}
 
         <div className="mt-8 flex gap-4">
-          <button
+          <Link
+            href="/cart"
             className="flex-1 rounded-2xl bg-red-600 px-6 py-3 text-center text-sm font-bold transition hover:bg-red-700 shadow-md hover:shadow-lg"
             style={{ color: '#FFFFFF' }}
           >
-            {meal.orderButtonText}
-          </button>
+            View Cart
+          </Link>
           <Link
             href="/menu"
             className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-6 py-3 text-center text-sm font-bold text-orange-600 transition hover:bg-orange-50"
