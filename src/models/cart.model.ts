@@ -9,6 +9,10 @@ const cartSchema = new mongoose.Schema(
       unique: true,
     },
     items: {
+      plates: {
+        type: Number,
+        default: 0,
+      },
       proteins: [
         {
           name: String,

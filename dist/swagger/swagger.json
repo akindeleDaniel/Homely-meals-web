@@ -32,7 +32,7 @@
                     "Plantain + Fish",
                     "Chicken",
                     "Sardine",
-                    "coleslaw"
+                    "Coleslaw"
                 ],
                 "nullable": false
             },
@@ -80,6 +80,76 @@
                 ],
                 "type": "object"
             },
+            "Cart": {
+                "properties": {
+                    "items": {
+                        "properties": {
+                            "combos": {
+                                "items": {
+                                    "$ref": "#/components/schemas/comboItems"
+                                },
+                                "type": "array"
+                            },
+                            "proteins": {
+                                "items": {
+                                    "$ref": "#/components/schemas/proteinItems"
+                                },
+                                "type": "array"
+                            },
+                            "plates": {
+                                "type": "number",
+                                "format": "double"
+                            }
+                        },
+                        "required": [
+                            "combos",
+                            "proteins",
+                            "plates"
+                        ],
+                        "type": "object"
+                    },
+                    "subtotal": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "itemsText": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "items",
+                    "subtotal",
+                    "currency",
+                    "itemsText"
+                ],
+                "type": "object",
+                "additionalProperties": false
+            },
+            "CartItemsInput": {
+                "properties": {
+                    "plates": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "proteins": {
+                        "items": {
+                            "$ref": "#/components/schemas/proteinItems"
+                        },
+                        "type": "array"
+                    },
+                    "combos": {
+                        "items": {
+                            "$ref": "#/components/schemas/comboItems"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object",
+                "additionalProperties": false
+            },
             "DeliveryArea": {
                 "type": "string",
                 "enum": [
@@ -107,6 +177,9 @@
                     },
                     "deliveryArea": {
                         "$ref": "#/components/schemas/DeliveryArea"
+                    },
+                    "callbackUrl": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -142,11 +215,31 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "phoneNumber": {},
+                                                "lastName": {},
+                                                "firstName": {},
+                                                "email": {},
+                                                "id": {}
+                                            },
+                                            "required": [
+                                                "phoneNumber",
+                                                "lastName",
+                                                "firstName",
+                                                "email",
+                                                "id"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "token": {},
                                         "message": {
                                             "type": "string"
                                         }
                                     },
                                     "required": [
+                                        "user",
+                                        "token",
                                         "message"
                                     ],
                                     "type": "object"
@@ -208,15 +301,17 @@
                                     "properties": {
                                         "user": {
                                             "properties": {
-                                                "fullName": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                }
+                                                "phoneNumber": {},
+                                                "lastName": {},
+                                                "firstName": {},
+                                                "email": {},
+                                                "id": {}
                                             },
                                             "required": [
-                                                "fullName",
+                                                "phoneNumber",
+                                                "lastName",
+                                                "firstName",
+                                                "email",
                                                 "id"
                                             ],
                                             "type": "object"
@@ -293,42 +388,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "itemsText": {
-                                            "type": "string"
-                                        },
-                                        "currency": {
-                                            "type": "string"
-                                        },
-                                        "subtotal": {
-                                            "type": "number",
-                                            "format": "double"
-                                        },
-                                        "items": {
-                                            "properties": {
-                                                "combos": {
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/comboItems"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "proteins": {
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/proteinItems"
-                                                    },
-                                                    "type": "array"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "required": [
-                                        "itemsText",
-                                        "currency",
-                                        "subtotal",
-                                        "items"
-                                    ],
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/Cart"
                                 }
                             }
                         }
@@ -344,21 +404,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "properties": {
-                                    "combos": {
-                                        "items": {
-                                            "$ref": "#/components/schemas/comboItems"
-                                        },
-                                        "type": "array"
-                                    },
-                                    "proteins": {
-                                        "items": {
-                                            "$ref": "#/components/schemas/proteinItems"
-                                        },
-                                        "type": "array"
-                                    }
-                                },
-                                "type": "object"
+                                "$ref": "#/components/schemas/CartItemsInput"
                             }
                         }
                     }
@@ -366,6 +412,36 @@
             }
         },
         "/main/cart": {
+            "put": {
+                "operationId": "ReplaceCart",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Main"
+                ],
+                "security": [],
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CartItemsInput"
+                            }
+                        }
+                    }
+                }
+            },
             "get": {
                 "operationId": "GetCart",
                 "responses": {
@@ -374,87 +450,33 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "$ref": "#/components/schemas/Cart"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Main"
+                ],
+                "security": [],
+                "parameters": []
+            },
+            "delete": {
+                "operationId": "ClearCart",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
                                     "properties": {
-                                        "itemsText": {
+                                        "message": {
                                             "type": "string"
-                                        },
-                                        "currency": {
-                                            "type": "string"
-                                        },
-                                        "subtotal": {
-                                            "type": "number",
-                                            "format": "double"
-                                        },
-                                        "items": {
-                                            "properties": {
-                                                "combos": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "quantity": {
-                                                                "type": "number",
-                                                                "format": "double"
-                                                            },
-                                                            "name": {
-                                                                "type": "string",
-                                                                "enum": [
-                                                                    "Stir-Fried Spag + Sardine & Fried Fish",
-                                                                    "Stir-Fried Spag + Egg & Fried Fish",
-                                                                    "Stir-Fried Spag + Egg",
-                                                                    "Stir-Fried Spag + Beef",
-                                                                    "Stir-Fried Spag + Fish & Plantain",
-                                                                    "Stir-Fried Spag + Dodo & Beef"
-                                                                ]
-                                                            }
-                                                        },
-                                                        "required": [
-                                                            "quantity",
-                                                            "name"
-                                                        ],
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "proteins": {
-                                                    "items": {
-                                                        "properties": {
-                                                            "quantity": {
-                                                                "type": "number",
-                                                                "format": "double"
-                                                            },
-                                                            "name": {
-                                                                "type": "string",
-                                                                "enum": [
-                                                                    "Egg",
-                                                                    "Beef",
-                                                                    "Fish",
-                                                                    "Plantain + Fish",
-                                                                    "Chicken",
-                                                                    "Sardine",
-                                                                    "coleslaw"
-                                                                ]
-                                                            }
-                                                        },
-                                                        "required": [
-                                                            "quantity",
-                                                            "name"
-                                                        ],
-                                                        "type": "object"
-                                                    },
-                                                    "type": "array"
-                                                }
-                                            },
-                                            "required": [
-                                                "combos",
-                                                "proteins"
-                                            ],
-                                            "type": "object"
                                         }
                                     },
                                     "required": [
-                                        "itemsText",
-                                        "currency",
-                                        "subtotal",
-                                        "items"
+                                        "message"
                                     ],
                                     "type": "object"
                                 }
@@ -583,7 +605,13 @@
                                                 "properties": {
                                                     "price": {
                                                         "type": "number",
-                                                        "format": "double"
+                                                        "enum": [
+                                                            2500,
+                                                            3000,
+                                                            3500,
+                                                            4000,
+                                                            4500
+                                                        ]
                                                     },
                                                     "name": {
                                                         "type": "string"
@@ -602,7 +630,11 @@
                                                 "properties": {
                                                     "price": {
                                                         "type": "number",
-                                                        "format": "double"
+                                                        "enum": [
+                                                            500,
+                                                            1000,
+                                                            1500
+                                                        ]
                                                     },
                                                     "name": {
                                                         "type": "string"
@@ -722,11 +754,15 @@
                                     },
                                     "email": {
                                         "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
                                     }
                                 },
                                 "required": [
                                     "password",
-                                    "email"
+                                    "email",
+                                    "name"
                                 ],
                                 "type": "object"
                             }
@@ -744,30 +780,33 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "anyOf": [
-                                        {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "admin": {
                                             "properties": {
-                                                "token": {},
-                                                "message": {
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
                                                     "type": "string"
                                                 }
                                             },
                                             "required": [
-                                                "message"
+                                                "email",
+                                                "name"
                                             ],
                                             "type": "object"
                                         },
-                                        {
-                                            "properties": {
-                                                "message": {},
-                                                "token": {}
-                                            },
-                                            "required": [
-                                                "token"
-                                            ],
-                                            "type": "object"
-                                        }
-                                    ]
+                                        "token": {}
+                                    },
+                                    "required": [
+                                        "message",
+                                        "admin",
+                                        "token"
+                                    ],
+                                    "type": "object"
                                 }
                             }
                         }
@@ -782,7 +821,21 @@
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {}
+                            "schema": {
+                                "properties": {
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "password",
+                                    "email"
+                                ],
+                                "type": "object"
+                            }
                         }
                     }
                 }
@@ -799,49 +852,25 @@
                                 "schema": {
                                     "items": {
                                         "properties": {
-                                            "createdAt": {
-                                                "$ref": "#/components/schemas/NativeDate"
-                                            },
-                                            "deliveryWindow": {
-                                                "type": "string"
-                                            },
-                                            "pickupLocation": {
-                                                "type": "string"
-                                            },
-                                            "deliveryAddress": {
-                                                "type": "string"
-                                            },
-                                            "deliveryType": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "pickup",
-                                                    "delivery"
-                                                ]
-                                            },
-                                            "status": {
-                                                "type": "string"
-                                            },
-                                            "total": {
-                                                "type": "number",
-                                                "format": "double"
-                                            },
-                                            "deliveryFee": {
-                                                "type": "number",
-                                                "format": "double"
-                                            },
-                                            "subtotal": {
-                                                "type": "number",
-                                                "format": "double"
-                                            },
+                                            "updatedAt": {},
+                                            "createdAt": {},
+                                            "deliveryWindow": {},
+                                            "pickupLocation": {},
+                                            "deliveryAddress": {},
+                                            "deliveryType": {},
+                                            "status": {},
+                                            "total": {},
+                                            "deliveryFee": {},
+                                            "currency": {},
+                                            "subtotal": {},
                                             "items": {},
-                                            "phoneNumber": {
-                                                "type": "string"
-                                            },
-                                            "id": {
-                                                "type": "string"
-                                            }
+                                            "phoneNumber": {},
+                                            "paymentReference": {},
+                                            "userEmail": {},
+                                            "id": {}
                                         },
                                         "required": [
+                                            "updatedAt",
                                             "createdAt",
                                             "deliveryWindow",
                                             "pickupLocation",
@@ -850,9 +879,12 @@
                                             "status",
                                             "total",
                                             "deliveryFee",
+                                            "currency",
                                             "subtotal",
                                             "items",
                                             "phoneNumber",
+                                            "paymentReference",
+                                            "userEmail",
                                             "id"
                                         ],
                                         "type": "object"
@@ -880,6 +912,9 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "updatedAt": {
+                                            "$ref": "#/components/schemas/NativeDate"
+                                        },
                                         "createdAt": {
                                             "$ref": "#/components/schemas/NativeDate"
                                         },
@@ -910,6 +945,9 @@
                                             "type": "number",
                                             "format": "double"
                                         },
+                                        "currency": {
+                                            "type": "string"
+                                        },
                                         "subtotal": {
                                             "type": "number",
                                             "format": "double"
@@ -918,11 +956,18 @@
                                         "phoneNumber": {
                                             "type": "string"
                                         },
+                                        "paymentReference": {
+                                            "type": "string"
+                                        },
+                                        "userEmail": {
+                                            "type": "string"
+                                        },
                                         "id": {
                                             "type": "string"
                                         }
                                     },
                                     "required": [
+                                        "updatedAt",
                                         "createdAt",
                                         "deliveryWindow",
                                         "pickupLocation",
@@ -931,9 +976,12 @@
                                         "status",
                                         "total",
                                         "deliveryFee",
+                                        "currency",
                                         "subtotal",
                                         "items",
                                         "phoneNumber",
+                                        "paymentReference",
+                                        "userEmail",
                                         "id"
                                     ],
                                     "type": "object"
@@ -960,7 +1008,17 @@
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {}
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ],
+                                "type": "object"
+                            }
                         }
                     }
                 }

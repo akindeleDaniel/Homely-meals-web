@@ -5,6 +5,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -34,6 +35,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -65,6 +67,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -100,6 +103,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -127,6 +131,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -158,6 +163,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -194,6 +200,7 @@ declare const _default: mongoose.Model<{
         currency: string;
         itemsText: string;
         items?: {
+            plates: number;
             proteins: mongoose.Types.DocumentArray<{
                 name?: string | null | undefined;
                 quantity?: number | null | undefined;
@@ -225,6 +232,7 @@ declare const _default: mongoose.Model<{
         currency: string;
         itemsText: string;
         items?: {
+            plates: number;
             proteins: mongoose.Types.DocumentArray<{
                 name?: string | null | undefined;
                 quantity?: number | null | undefined;
@@ -259,6 +267,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;
@@ -292,6 +301,7 @@ declare const _default: mongoose.Model<{
     currency: string;
     itemsText: string;
     items?: {
+        plates: number;
         proteins: mongoose.Types.DocumentArray<{
             name?: string | null | undefined;
             quantity?: number | null | undefined;

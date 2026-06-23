@@ -1,22 +1,26 @@
-﻿import {
-  Controller,
-  Route,
-  Tags,
-  Post,
+import {
   Body,
-  SuccessResponse,
-  Request,
+  Controller,
+  Delete,
   Get,
+  Post,
+  Put,
+  Request,
+  Route,
+  SuccessResponse,
+  Tags,
 } from "tsoa";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.models";
-import { proteinItems, comboItems, CartService } from "../services/cart.service";
+import { CartService } from "../services/cart.service";
+import type { CartItemsInput } from "../services/cart.service";
 import { Telegram } from "../utils/telegram";
 import dotenv from "dotenv";
-import { createOrder } from "../services/order.service";
+import { createOrder, formatOrderItemsText } from "../services/order.service";
 import { initializePaystack, verifyPaystack } from "../services/paystack.service";
 import { DELIVERY_FEES } from "../constants/delivery";
+import { CURRENCY } from "../constants/prices";
 import { v4 as uuidv4 } from "uuid";
 import type { OrderDTO } from "../interfaces/order.interface";
 
@@ -27,22 +31,41 @@ interface LoginRequest {
   password: string;
 }
 
+const signUserToken = (user: any) => {
+  return jwt.sign(
+    { id: user._id.toString(), email: user.email },
+    process.env.JWT_SECRET || "",
+    { expiresIn: "1d" }
+  );
+};
+
+const getUserPayload = (user: any) => ({
+  id: user._id.toString(),
+  email: user.email,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  phoneNumber: user.phoneNumber,
+});
+
 @Route("main")
 @Tags("Main")
 export class MainController extends Controller {
   private authenticate(req: any) {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith("Bearer ")) {
+      this.setStatus(401);
       throw new Error("Authorization token missing");
     }
 
     const token = authHeader.split(" ")[1];
     if (!token) {
+      this.setStatus(401);
       throw new Error("Authorization token missing");
     }
 
     const payload = jwt.verify(token, process.env.JWT_SECRET || "") as any;
     if (!payload?.id) {
+      this.setStatus(401);
       throw new Error("Invalid token");
     }
 
@@ -50,13 +73,16 @@ export class MainController extends Controller {
   }
 
   @Post("register")
-  async register(@Body() body: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;    
-    phoneNumber: string;
-  }) {
+  async register(
+    @Body()
+    body: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+    }
+  ) {
     const existing = await User.findOne({ email: body.email });
     if (existing) {
       this.setStatus(409);
@@ -76,12 +102,17 @@ export class MainController extends Controller {
 
     await CartService.getCart(user._id.toString());
 
-    return { message: "Registered" };
+    return {
+      message: "Registered",
+      token: signUserToken(user),
+      user: getUserPayload(user),
+    };
   }
 
   @Post("login")
   async login(@Body() body: LoginRequest) {
     if (!body.email || !body.password) {
+      this.setStatus(400);
       throw new Error("Email and password are required");
     }
 
@@ -97,19 +128,10 @@ export class MainController extends Controller {
       throw new Error("Invalid email or password");
     }
 
-    const token = jwt.sign(
-      { id: user._id.toString(), email: user.email },
-      process.env.JWT_SECRET || "",
-      { expiresIn: "1d" }
-    );
-
     return {
       message: "Logged in",
-      token,
-      user: {
-        id: user._id.toString(),
-        fullName: `${user.firstName} ${user.lastName}`,
-      },
+      token: signUserToken(user),
+      user: getUserPayload(user),
     };
   }
 
@@ -121,20 +143,36 @@ export class MainController extends Controller {
   }
 
   @Post("cart/add")
-  async addCart(@Request() req: any, @Body() body: { proteins?: proteinItems[]; combos?: comboItems[]; }) {
+  async addCart(@Request() req: any, @Body() body: CartItemsInput) {
     const payload = this.authenticate(req);
-    return await CartService.add(payload.id, body);
+    return CartService.add(payload.id, body);
+  }
+
+  @Put("cart")
+  async replaceCart(@Request() req: any, @Body() body: CartItemsInput) {
+    const payload = this.authenticate(req);
+    return CartService.replace(payload.id, body);
   }
 
   @Get("cart")
   async getCart(@Request() req: any) {
     const payload = this.authenticate(req);
-    return await CartService.get(payload.id);
+    return CartService.getCart(payload.id);
+  }
+
+  @Delete("cart")
+  async clearCart(@Request() req: any) {
+    const payload = this.authenticate(req);
+    await CartService.clear(payload.id);
+    return { message: "Cart cleared" };
   }
 
   @Post("checkout")
   @SuccessResponse("200", "Payment Initialized")
-  public async checkout(@Request() req: any, @Body() body: OrderDTO): Promise<{ paymentUrl: string; orderRef: string }> {
+  public async checkout(
+    @Request() req: any,
+    @Body() body: OrderDTO
+  ): Promise<{ paymentUrl: string; orderRef: string }> {
     const payload = this.authenticate(req);
 
     if (!body.email || !body.phoneNumber) {
@@ -143,7 +181,7 @@ export class MainController extends Controller {
     }
 
     const cart = await CartService.get(payload.id);
-    if (!cart || !cart.items) {
+    if (!cart || CartService.isEmpty(cart)) {
       this.setStatus(400);
       throw new Error("Cart is empty");
     }
@@ -157,7 +195,7 @@ export class MainController extends Controller {
         throw new Error("Delivery area and address are required for delivery");
       }
 
-      if (!DELIVERY_FEES[body.deliveryArea]) {
+      if (DELIVERY_FEES[body.deliveryArea] === undefined) {
         this.setStatus(400);
         throw new Error("Invalid delivery area. Choose either 'gk' or 'outside-gk'");
       }
@@ -180,7 +218,9 @@ export class MainController extends Controller {
       email: body.email,
       amount: total * 100,
       reference: orderRef,
+      callbackUrl: body.callbackUrl,
       metadata: {
+        email: body.email,
         userId: payload.id,
         phoneNumber: body.phoneNumber,
         deliveryType: body.deliveryType,
@@ -188,6 +228,7 @@ export class MainController extends Controller {
         deliveryArea: body.deliveryArea,
         items: cart.items,
         subtotal: cart.subtotal,
+        currency: cart.currency || CURRENCY,
         deliveryFee,
         total,
       },
@@ -205,7 +246,10 @@ export class MainController extends Controller {
   }
 
   @Post("order")
-  public async placeOrder(@Request() req: any, @Body() body: OrderDTO & { orderRef: string }): Promise<{ message: string }> {
+  public async placeOrder(
+    @Request() req: any,
+    @Body() body: OrderDTO & { orderRef: string }
+  ): Promise<{ message: string }> {
     const payload = this.authenticate(req);
 
     if (!body.orderRef) {
@@ -238,23 +282,17 @@ export class MainController extends Controller {
       deliveryType: body.deliveryType,
       deliveryArea: body.deliveryArea,
       deliveryAddress: body.deliveryAddress,
+      paymentReference: body.orderRef,
     });
 
-    const itemsText = [
-      ...(order.items.proteins ?? []).map((p) => `${p.quantity} x ${p.name}`),
-      ...(order.items.combos ?? []).map((c) => `${c.quantity} x ${c.name}`),
-    ]
-      .join(", ")
-      .trim();
-
+    const itemsText = formatOrderItemsText(order.items);
     const message =
       order.deliveryType === "delivery"
-        ? `\n🍔 NEW ORDER\n📞 Phone: ${order.phoneNumber}\n🍽 Items: ${itemsText || "No Items"}\n🚚 Delivery Fee: ₦${order.deliveryFee}\n💰 Total: ₦${order.total}\n📍 Address: ${order.deliveryAddress}\n`
-        : `\n🍔 NEW ORDER (PICKUP)\n📞 Phone: ${order.phoneNumber}\n🍽 Items: ${itemsText || "No Items"}\n💰 Total: ₦${order.total}\n📍 Pickup: ${order.pickupLocation}\n`;
+        ? `NEW ORDER\nPhone: ${order.phoneNumber}\nItems: ${itemsText || "No items"}\nDelivery Fee: ${CURRENCY}${order.deliveryFee}\nTotal: ${CURRENCY}${order.total}\nAddress: ${order.deliveryAddress}`
+        : `NEW ORDER (PICKUP)\nPhone: ${order.phoneNumber}\nItems: ${itemsText || "No items"}\nTotal: ${CURRENCY}${order.total}\nPickup: ${order.pickupLocation}`;
 
     await Telegram(message);
 
     return { message: "Order placed successfully. Thank you for choosing Homely Made Meals" };
   }
 }
-

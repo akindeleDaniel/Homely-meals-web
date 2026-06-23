@@ -11,38 +11,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MenuController = void 0;
 const tsoa_1 = require("tsoa");
+const prices_1 = require("../constants/prices");
+const delivery_1 = require("../constants/delivery");
 let MenuController = class MenuController extends tsoa_1.Controller {
     async getHome() {
         return {
-            headline: "Special Wednesday Stir-Fried Spaghetti 🍝",
-            subtext: "Choose your base spaghetti. Add your preferred proteins or pick a ready-made combo.",
-            orderButtonText: "🟢 Order Your Spag Now",
+            headline: "Special Wednesday Stir-Fried Spaghetti",
+            subtext: "Choose how many plates you want, add any proteins, and add any ready-made combos.",
+            orderButtonText: "Order Your Spag Now",
             baseMeal: {
-                name: "Stir-Fried Spaghetti (No Protein)",
-                price: 2000,
-                currency: "₦",
+                name: "Stir-Fried Spaghetti",
+                price: prices_1.BASE_PRICE,
+                currency: prices_1.CURRENCY,
             },
             deliveryInfo: {
-                window: "Wednesday 2:00 PM – 5:00 PM",
-                note: "Delivery and pickup available within this time frame only",
+                window: delivery_1.DELIVERY_WINDOW,
+                note: "Delivery and pickup are available within this time frame only",
             },
-            proteins: [
-                { name: "Egg", price: 500 },
-                { name: "coleslaw", price: 500 },
-                { name: "Beef", price: 1000 },
-                { name: "Fish", price: 1000 },
-                { name: "Plantain + Fish", price: 1500 },
-                { name: "Chicken", price: 1500 },
-                { name: "Sardine", price: 1500 },
-            ],
-            combos: [
-                { name: "Stir-Fried Spag + Sardine & Fried Fish", price: 4500 },
-                { name: "Stir-Fried Spag + Egg & Fried Fish", price: 4000 },
-                { name: "Stir-Fried Spag + Egg", price: 2500 },
-                { name: "Stir-Fried Spag + Beef", price: 3000 },
-                { name: "Stir-Fried Spag + Fish & Plantain", price: 3500 },
-                { name: "Stir-Fried Spag + Dodo & Beef", price: 3500 },
-            ],
+            proteins: Object.entries(prices_1.PROTEIN_PRICES).map(([name, price]) => ({ name, price })),
+            combos: Object.entries(prices_1.COMBO_PRICES).map(([name, price]) => ({ name, price })),
         };
     }
 };

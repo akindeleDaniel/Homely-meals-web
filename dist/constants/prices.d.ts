@@ -1,3 +1,4 @@
+export declare const CURRENCY = "\u20A6";
 export declare const BASE_PRICE = 2000;
 export declare const PROTEIN_PRICES: {
     readonly Egg: 500;
@@ -6,7 +7,7 @@ export declare const PROTEIN_PRICES: {
     readonly "Plantain + Fish": 1500;
     readonly Chicken: 1500;
     readonly Sardine: 1500;
-    readonly coleslaw: 500;
+    readonly Coleslaw: 500;
 };
 export declare const COMBO_PRICES: {
     readonly "Stir-Fried Spag + Sardine & Fried Fish": 4500;
@@ -18,4 +19,6 @@ export declare const COMBO_PRICES: {
 };
 export type Protein = keyof typeof PROTEIN_PRICES;
 export type Combo = keyof typeof COMBO_PRICES;
+export declare const isProtein: (value: string) => value is Protein;
+export declare const isCombo: (value: string) => value is Combo;
 //# sourceMappingURL=prices.d.ts.map

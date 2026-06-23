@@ -1,122 +1,141 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  type: 'protein' | 'combo' | 'base';
-}
-
-export interface Cart {
-  items: CartItem[];
-  subtotal: number;
-  deliveryFee: number;
-  total: number;
-}
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  clearServerCart,
+  fetchCart,
+  saveServerCart,
+  type CartInput,
+  type ServerCart,
+} from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 interface CartContextType {
-  cart: Cart;
-  addItem: (item: CartItem) => void;
-  removeItem: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
-  clearCart: () => void;
+  cart: ServerCart;
+  isCartLoading: boolean;
+  cartError: string;
+  saveCart: (input: CartInput) => Promise<ServerCart>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
   getTotalItems: () => number;
+  isCartEmpty: boolean;
 }
+
+const emptyCart: ServerCart = {
+  items: {
+    plates: 0,
+    proteins: [],
+    combos: [],
+  },
+  subtotal: 0,
+  currency: '₦',
+  itemsText: '',
+};
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const DELIVERY_FEE = 500;
+const hasCartItems = (cart: ServerCart) => {
+  return cart.items.plates > 0 || cart.items.proteins.length > 0 || cart.items.combos.length > 0;
+};
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<Cart>({
-    items: [],
-    subtotal: 0,
-    deliveryFee: 0,
-    total: 0,
-  });
+  const { token, isAuthenticated } = useAuth();
+  const [cart, setCart] = useState<ServerCart>(emptyCart);
+  const [isCartLoading, setIsCartLoading] = useState(false);
+  const [cartError, setCartError] = useState('');
 
-  const calculateTotals = useCallback((items: CartItem[]) => {
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const deliveryFee = items.length > 0 ? DELIVERY_FEE : 0;
-    const total = subtotal + deliveryFee;
-    return { subtotal, deliveryFee, total };
-  }, []);
+  const refreshCart = useCallback(async () => {
+    if (!token) {
+      setCart(emptyCart);
+      return;
+    }
 
-  const addItem = useCallback(
-    (newItem: CartItem) => {
-      setCart((prev) => {
-        const existingItem = prev.items.find((item) => item.id === newItem.id);
-        let updatedItems: CartItem[];
+    setIsCartLoading(true);
+    setCartError('');
+    try {
+      const nextCart = await fetchCart(token);
+      setCart(nextCart);
+    } catch (error) {
+      setCartError(error instanceof Error ? error.message : 'Could not load cart');
+    } finally {
+      setIsCartLoading(false);
+    }
+  }, [token]);
 
-        if (existingItem) {
-          updatedItems = prev.items.map((item) =>
-            item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item
-          );
-        } else {
-          updatedItems = [...prev.items, newItem];
-        }
+  useEffect(() => {
+    if (isAuthenticated) {
+      void refreshCart();
+    } else {
+      setCart(emptyCart);
+    }
+  }, [isAuthenticated, refreshCart]);
 
-        const { subtotal, deliveryFee, total } = calculateTotals(updatedItems);
-        return { items: updatedItems, subtotal, deliveryFee, total };
-      });
-    },
-    [calculateTotals]
-  );
-
-  const removeItem = useCallback(
-    (itemId: string) => {
-      setCart((prev) => {
-        const updatedItems = prev.items.filter((item) => item.id !== itemId);
-        const { subtotal, deliveryFee, total } = calculateTotals(updatedItems);
-        return { items: updatedItems, subtotal, deliveryFee, total };
-      });
-    },
-    [calculateTotals]
-  );
-
-  const updateQuantity = useCallback(
-    (itemId: string, quantity: number) => {
-      if (quantity <= 0) {
-        removeItem(itemId);
-        return;
+  const saveCart = useCallback(
+    async (input: CartInput) => {
+      if (!token) {
+        throw new Error('Please log in before adding items to your cart');
       }
 
-      setCart((prev) => {
-        const updatedItems = prev.items.map((item) =>
-          item.id === itemId ? { ...item, quantity } : item
-        );
-        const { subtotal, deliveryFee, total } = calculateTotals(updatedItems);
-        return { items: updatedItems, subtotal, deliveryFee, total };
-      });
+      setIsCartLoading(true);
+      setCartError('');
+      try {
+        const saved = await saveServerCart(token, input);
+        setCart(saved);
+        return saved;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Could not save cart';
+        setCartError(message);
+        throw new Error(message);
+      } finally {
+        setIsCartLoading(false);
+      }
     },
-    [calculateTotals, removeItem]
+    [token]
   );
 
-  const clearCart = useCallback(() => {
-    setCart({ items: [], subtotal: 0, deliveryFee: 0, total: 0 });
-  }, []);
+  const clearCart = useCallback(async () => {
+    if (!token) {
+      setCart(emptyCart);
+      return;
+    }
+
+    setIsCartLoading(true);
+    setCartError('');
+    try {
+      await clearServerCart(token);
+      setCart(emptyCart);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not clear cart';
+      setCartError(message);
+      throw new Error(message);
+    } finally {
+      setIsCartLoading(false);
+    }
+  }, [token]);
 
   const getTotalItems = useCallback(() => {
-    return cart.items.reduce((sum, item) => sum + item.quantity, 0);
-  }, [cart.items]);
+    return (
+      cart.items.plates +
+      cart.items.proteins.reduce((sum, item) => sum + item.quantity, 0) +
+      cart.items.combos.reduce((sum, item) => sum + item.quantity, 0)
+    );
+  }, [cart]);
 
-  return (
-    <CartContext.Provider
-      value={{
-        cart,
-        addItem,
-        removeItem,
-        updateQuantity,
-        clearCart,
-        getTotalItems,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  const value = useMemo(
+    () => ({
+      cart,
+      isCartLoading,
+      cartError,
+      saveCart,
+      clearCart,
+      refreshCart,
+      getTotalItems,
+      isCartEmpty: !hasCartItems(cart),
+    }),
+    [cart, cartError, clearCart, getTotalItems, isCartLoading, refreshCart, saveCart]
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {

@@ -4,6 +4,7 @@ export interface OrderItem {
     quantity: number;
 }
 export interface OrderItems {
+    plates?: number;
     proteins?: OrderItem[];
     combos?: OrderItem[];
 }
@@ -13,5 +14,6 @@ export interface OrderDTO {
     deliveryType: "pickup" | "delivery";
     deliveryAddress?: string;
     deliveryArea?: DeliveryArea;
+    callbackUrl?: string;
 }
 //# sourceMappingURL=order.interface.d.ts.map

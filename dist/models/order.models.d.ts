@@ -13,6 +13,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
@@ -29,6 +30,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, {
@@ -47,6 +49,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -69,6 +72,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     phoneNumber: string;
     items: any;
@@ -83,6 +87,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, mongoose.ResolveSchemaOptions<{
@@ -101,6 +106,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -124,6 +130,7 @@ declare const _default: mongoose.Model<{
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
         userEmail?: string | null | undefined;
+        paymentReference?: string | null | undefined;
     } & mongoose.DefaultTimestampProps, {
         id: string;
     }, mongoose.ResolveSchemaOptions<{
@@ -142,6 +149,7 @@ declare const _default: mongoose.Model<{
         pickupLocation?: string | null | undefined;
         deliveryWindow?: string | null | undefined;
         userEmail?: string | null | undefined;
+        paymentReference?: string | null | undefined;
     } & mongoose.DefaultTimestampProps & {
         _id: mongoose.Types.ObjectId;
     } & {
@@ -163,6 +171,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
@@ -183,6 +192,7 @@ declare const _default: mongoose.Model<{
     pickupLocation?: string | null | undefined;
     deliveryWindow?: string | null | undefined;
     userEmail?: string | null | undefined;
+    paymentReference?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {

@@ -1,31 +1,56 @@
+import crypto from "crypto";
 import express from "express";
-import path from "path";
 import { ValidateError } from "tsoa";
 import cors from "cors";
 import { RegisterRoutes } from "./routes/routes";
+import { createOrderFromPaystackMetadata } from "./services/order.service";
 
 export const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, _res, buffer) => {
+      (req as any).rawBody = buffer.toString("utf8");
+    },
+  })
+);
 
-// Serve static files from the React build
-const clientPath = "C:\\Users\\Daniel\\.vscode\\Homely-meals-web\\client\\dist";
-console.log("Serving static files from:", clientPath);
-app.use(express.static(clientPath));
+app.post("/webhook/paystack", async (req, res, next) => {
+  try {
+    const signature = req.headers["x-paystack-signature"];
+    const secret = process.env.PAYSTACK_SECRET_KEY;
 
-// API routes
-RegisterRoutes(app);
+    if (secret && signature) {
+      const hash = crypto
+        .createHmac("sha512", secret)
+        .update((req as any).rawBody || "")
+        .digest("hex");
 
-// Test route
-app.get('/test', (req, res) => {
-  res.send('Test route works');
+      if (hash !== signature) {
+        return res.status(401).json({ message: "Invalid Paystack signature" });
+      }
+    }
+
+    const event = req.body;
+    if (event?.event === "charge.success" && event?.data?.status === "success") {
+      await createOrderFromPaystackMetadata(
+        event.data.reference,
+        event.data.metadata ?? {},
+        event.data.customer?.email
+      );
+    }
+
+    return res.json({ received: true });
+  } catch (err) {
+    return next(err);
+  }
 });
 
-// Catch all handler: send back React's index.html file for client-side routing
-app.use((req, res) => {
-  console.log("Serving index.html for", req.path);
-  res.sendFile("C:\\Users\\Daniel\\.vscode\\Homely-meals-web\\client\\dist\\index.html");
+RegisterRoutes(app);
+
+app.get("/test", (_req, res) => {
+  res.send("Test route works");
 });
 
 app.use((err: any, req: any, res: any, _next: any) => {
@@ -36,15 +61,14 @@ app.use((err: any, req: any, res: any, _next: any) => {
       details: err?.fields,
     });
   }
+
   console.error("ERROR PATH:", req.path);
   console.error("ERROR NAME:", err?.name);
   console.error("ERROR MESSAGE:", err?.message);
   console.error("ERROR STACK:", err?.stack);
-  console.error("FULL ERROR:", err);
 
-  res.status(err?.status || 500).json({
+  return res.status(err?.status || 500).json({
     error: err?.name || "InternalServerError",
     message: err?.message || "Unknown server error",
   });
 });
-

@@ -2,6 +2,7 @@ interface InitParams {
     email: string;
     amount: number;
     reference: string;
+    callbackUrl?: string;
     metadata?: Record<string, any>;
 }
 export declare function initializePaystack(data: InitParams): Promise<any>;

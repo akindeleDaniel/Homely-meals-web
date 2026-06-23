@@ -12,6 +12,7 @@ function initializePaystack(data) {
             email: data.email,
             amount: data.amount,
             reference: data.reference,
+            callback_url: data.callbackUrl,
             metadata: data.metadata,
         });
         const options = {

@@ -1,176 +1,23 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { fetchMenuHome, type MenuResponse } from '@/lib/api';
-import { useCart } from '@/context/CartContext';
 
-export default function MealDetailPage({ params }: { params: { id: string } }) {
-  const [meal, setMeal] = useState<MenuResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { addItem } = useCart();
-
-  useEffect(() => {
-    const loadMeal = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchMenuHome();
-        setMeal(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load meal');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMeal();
-  }, [params.id]);
-
-  const handleAddToCart = (item: any, type: 'protein' | 'combo' | 'base' = 'base') => {
-    addItem({
-      id: `${type}-${item.name || 'item'}-${Date.now()}`,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      type,
-    });
-    alert(`${item.name} added to cart!`);
-  };
-
-  if (loading) {
-    return (
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-64 rounded-lg bg-orange-200" />
-          <div className="h-40 w-full rounded-lg bg-orange-200" />
-        </div>
-      </section>
-    );
-  }
-
-  if (error || !meal) {
-    return (
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-8">
-          <h1 className="text-2xl font-bold text-red-700">Error loading meal</h1>
-          <p className="mt-2 text-red-600">{error || 'Meal not found'}</p>
-          <Link
-            href="/menu"
-            className="mt-4 inline-block rounded-lg bg-orange-600 px-4 py-2 text-white transition hover:bg-orange-700"
-          >
-            Back to menu
-          </Link>
-        </div>
-      </section>
-    );
-  }
-
+export default function MealDetailPage() {
   return (
-    <section className="mx-auto max-w-4xl px-6 py-10 sm:py-16">
-      <Link
-        href="/menu"
-        className="mb-6 inline-flex items-center text-orange-600 transition hover:text-orange-700"
-      >
-        ← Back to menu
-      </Link>
-
-      <div className="rounded-3xl border border-orange-200 bg-white/95 p-8 shadow-md shadow-orange-900/5">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-orange-600">
-          Meal detail
+    <section className="mx-auto max-w-3xl px-6 py-10 sm:py-16">
+      <div className="rounded-2xl border border-orange-200 bg-white p-8 shadow-md shadow-orange-900/5">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-orange-600">Menu</p>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-amber-900">
+          Build your meal from the menu page
+        </h1>
+        <p className="mt-4 leading-8 text-amber-800">
+          Plates, proteins, and combos are now selected together from one ordering screen.
         </p>
-
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-amber-900">{meal.headline}</h1>
-
-        <p className="mt-6 text-lg leading-8 text-amber-800">{meal.subtext}</p>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl bg-orange-50 p-6">
-            <h3 className="text-xl font-bold text-amber-900">Base meal</h3>
-            <p className="mt-2 text-amber-800">{meal.baseMeal.name}</p>
-            <p className="mt-4 text-2xl font-bold text-red-600">
-              {meal.baseMeal.currency} {meal.baseMeal.price.toLocaleString()}
-            </p>
-            <button
-              onClick={() => handleAddToCart(meal.baseMeal, 'base')}
-              className="mt-4 w-full rounded-lg bg-red-600 py-2 text-sm font-bold text-white transition hover:bg-red-700"
-            >
-              Add Base Meal to Cart
-            </button>
-          </div>
-
-          <div className="rounded-2xl bg-orange-50 p-6">
-            <h3 className="text-xl font-bold text-amber-900">Delivery window</h3>
-            <p className="mt-2 text-amber-800">{meal.deliveryInfo.window}</p>
-            <p className="mt-2 text-sm italic text-amber-700">{meal.deliveryInfo.note}</p>
-          </div>
-        </div>
-
-        {meal.proteins.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-amber-900">Protein add-ons</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {meal.proteins.map((protein) => (
-                <div
-                  key={protein.name}
-                  className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-4"
-                >
-                  <span className="font-medium text-amber-900">{protein.name}</span>
-                  <span className="font-bold text-red-600">
-                    + {meal.baseMeal.currency} {protein.price.toLocaleString()}
-                  </span>
-                  <button
-                    onClick={() => handleAddToCart(protein, 'protein')}
-                    className="ml-4 rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700"
-                  >
-                    Add
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {meal.combos.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-amber-900">Ready-made combos</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {meal.combos.map((combo) => (
-                <div
-                  key={combo.name}
-                  className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-4"
-                >
-                  <span className="font-medium text-amber-900">{combo.name}</span>
-                  <span className="font-bold text-red-600">
-                    {meal.baseMeal.currency} {combo.price.toLocaleString()}
-                  </span>
-                  <button
-                    onClick={() => handleAddToCart(combo, 'combo')}
-                    className="ml-4 rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 flex gap-4">
-          <Link
-            href="/cart"
-            className="flex-1 rounded-2xl bg-red-600 px-6 py-3 text-center text-sm font-bold transition hover:bg-red-700 shadow-md hover:shadow-lg"
-            style={{ color: '#FFFFFF' }}
-          >
-            View Cart
-          </Link>
-          <Link
-            href="/menu"
-            className="flex-1 rounded-2xl border-2 border-orange-500 bg-white px-6 py-3 text-center text-sm font-bold text-orange-600 transition hover:bg-orange-50"
-          >
-            Back to menu
-          </Link>
-        </div>
+        <Link
+          href="/menu"
+          className="mt-8 inline-block rounded-lg bg-red-600 px-6 py-3 font-bold transition hover:bg-red-700"
+          style={{ color: '#FFFFFF' }}
+        >
+          Open menu
+        </Link>
       </div>
     </section>
   );

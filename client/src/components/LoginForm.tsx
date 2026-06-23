@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 export function LoginForm() {
@@ -10,15 +11,18 @@ export function LoginForm() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError('');
     setIsSubmitting(true);
 
     try {
       await login(email, password);
-      window.location.href = '/';
+      router.push(redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -35,7 +39,7 @@ export function LoginForm() {
         <input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(event) => setEmail(event.target.value)}
           required
           className="mt-2 w-full rounded-lg border border-orange-200 px-4 py-2 focus:border-orange-600 focus:outline-none"
           placeholder="you@example.com"
@@ -47,10 +51,10 @@ export function LoginForm() {
         <input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
           required
           className="mt-2 w-full rounded-lg border border-orange-200 px-4 py-2 focus:border-orange-600 focus:outline-none"
-          placeholder="••••••••"
+          placeholder="********"
         />
       </div>
 
@@ -65,7 +69,10 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-amber-800">
         Don't have an account?{' '}
-        <Link href="/register" className="font-bold text-orange-600 hover:text-orange-700">
+        <Link
+          href={`/register?redirect=${encodeURIComponent(redirectTo)}`}
+          className="font-bold text-orange-600 hover:text-orange-700"
+        >
           Register
         </Link>
       </p>

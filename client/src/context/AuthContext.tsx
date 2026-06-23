@@ -1,17 +1,16 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber?: string;
-}
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  loginCustomer,
+  registerCustomer,
+  type RegisterPayload,
+  type User,
+} from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -19,113 +18,76 @@ interface AuthContextType {
   logout: () => void;
 }
 
-export interface RegisterData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phoneNumber?: string;
-}
+export type RegisterData = RegisterPayload;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const TOKEN_KEY = 'authToken';
+const USER_KEY = 'authUser';
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load token from localStorage on mount
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // TODO: In production, validate token with backend
-      setUser({
-        id: 'persisted_user',
-        email: '',
-        firstName: 'Returning',
-        lastName: 'User',
-      });
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedUser = localStorage.getItem(USER_KEY);
+
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser) as User);
     }
+
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      const res = await fetch('/api/main/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to login');
-      }
-
-      const data = await res.json();
-      const token = data.token;
-
-      localStorage.setItem('authToken', token);
-
-      setUser({
-        id: data.userId || 'user_' + Date.now(),
-        email,
-        firstName: data.firstName || 'User',
-        lastName: data.lastName || '',
-        phoneNumber: data.phoneNumber,
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const persistSession = useCallback((nextToken: string, nextUser: User) => {
+    localStorage.setItem(TOKEN_KEY, nextToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setToken(nextToken);
+    setUser(nextUser);
   }, []);
 
-  const register = useCallback(async (data: RegisterData) => {
-    try {
+  const login = useCallback(
+    async (email: string, password: string) => {
       setIsLoading(true);
-      const res = await fetch('/api/main/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to register');
+      try {
+        const data = await loginCustomer(email, password);
+        persistSession(data.token, data.user);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [persistSession]
+  );
 
-      const response = await res.json();
-      const token = response.token;
-
-      localStorage.setItem('authToken', token);
-
-      setUser({
-        id: response.userId || 'user_' + Date.now(),
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
-      });
-    } catch (error) {
-      console.error('Register error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const register = useCallback(
+    async (data: RegisterData) => {
+      setIsLoading(true);
+      try {
+        const response = await registerCustomer(data);
+        persistSession(response.token, response.user);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [persistSession]
+  );
 
   const logout = useCallback(() => {
     setUser(null);
-    localStorage.removeItem('authToken');
+    setToken(null);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        token,
+        isAuthenticated: !!user && !!token,
         isLoading,
         login,
         register,

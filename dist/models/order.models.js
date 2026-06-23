@@ -7,6 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const OrderSchema = new mongoose_1.default.Schema({
     userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" },
     userEmail: { type: String },
+    paymentReference: { type: String, unique: true, sparse: true },
     phoneNumber: { type: String, required: true },
     items: {
         type: mongoose_1.default.Schema.Types.Mixed,
@@ -19,7 +20,7 @@ const OrderSchema = new mongoose_1.default.Schema({
     deliveryType: {
         type: String,
         enum: ["pickup", "delivery"],
-        required: true
+        required: true,
     },
     deliveryAddress: String,
     pickupLocation: String,
@@ -27,7 +28,7 @@ const OrderSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
         default: "pending",
-    }
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Order", OrderSchema);
 //# sourceMappingURL=order.models.js.map

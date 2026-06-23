@@ -4,12 +4,23 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { CartInput, CartLine } from '@/lib/api';
+
+const updateLineQuantity = (lines: CartLine[], name: string, quantity: number) => {
+  if (quantity <= 0) {
+    return lines.filter((line) => line.name !== name);
+  }
+
+  return lines.map((line) => (line.name === name ? { ...line, quantity } : line));
+};
 
 export default function CartPage() {
-  const { cart, removeItem, updateQuantity, clearCart } = useCart();
+  const { cart, clearCart, isCartEmpty, isCartLoading, saveCart } = useCart();
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -22,15 +33,59 @@ export default function CartPage() {
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect
+    return null;
   }
 
-  if (cart.items.length === 0) {
+  const commitCart = async (input: CartInput) => {
+    setMessage('');
+    setError('');
+
+    const empty =
+      (input.plates ?? 0) === 0 &&
+      (input.proteins ?? []).length === 0 &&
+      (input.combos ?? []).length === 0;
+
+    try {
+      if (empty) {
+        await clearCart();
+      } else {
+        await saveCart(input);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not update cart');
+    }
+  };
+
+  const updatePlates = (quantity: number) => {
+    void commitCart({
+      plates: Math.max(0, quantity),
+      proteins: cart.items.proteins,
+      combos: cart.items.combos,
+    });
+  };
+
+  const updateProtein = (name: string, quantity: number) => {
+    void commitCart({
+      plates: cart.items.plates,
+      proteins: updateLineQuantity(cart.items.proteins, name, quantity),
+      combos: cart.items.combos,
+    });
+  };
+
+  const updateCombo = (name: string, quantity: number) => {
+    void commitCart({
+      plates: cart.items.plates,
+      proteins: cart.items.proteins,
+      combos: updateLineQuantity(cart.items.combos, name, quantity),
+    });
+  };
+
+  if (isCartEmpty) {
     return (
       <section className="mx-auto max-w-4xl px-6 py-10 sm:py-16">
-        <div className="rounded-3xl border border-orange-200 bg-white/95 p-8 text-center shadow-md shadow-orange-900/5">
+        <div className="rounded-2xl border border-orange-200 bg-white p-8 text-center shadow-md shadow-orange-900/5">
           <h1 className="text-3xl font-bold text-amber-900">Your cart is empty</h1>
-          <p className="mt-4 text-amber-800">Add some delicious meals to get started</p>
+          <p className="mt-4 text-amber-800">Add some delicious meals to get started.</p>
           <Link
             href="/menu"
             className="mt-8 inline-block rounded-lg bg-red-600 px-6 py-3 font-bold transition hover:bg-red-700"
@@ -46,41 +101,93 @@ export default function CartPage() {
   return (
     <section className="mx-auto max-w-4xl px-6 py-10 sm:py-16">
       <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-3xl border border-orange-200 bg-white/95 p-8 shadow-md shadow-orange-900/5">
+        <div className="space-y-6 lg:col-span-2">
+          <div className="rounded-2xl border border-orange-200 bg-white p-8 shadow-md shadow-orange-900/5">
             <h1 className="text-2xl font-bold text-amber-900">Shopping cart</h1>
+            {message && <div className="mt-4 rounded-lg bg-green-50 p-4 text-green-700">{message}</div>}
+            {error && <div className="mt-4 rounded-lg bg-red-50 p-4 text-red-700">{error}</div>}
+
             <div className="mt-6 space-y-4">
-              {cart.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-4"
-                >
+              {cart.items.plates > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-orange-200 bg-orange-50 p-4">
                   <div>
-                    <h3 className="font-bold text-amber-900">{item.name}</h3>
-                    <p className="text-sm text-amber-700">₦ {item.price.toLocaleString()}</p>
+                    <h3 className="font-bold text-amber-900">Stir-Fried Spaghetti</h3>
+                    <p className="text-sm text-amber-700">Base plates</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 border border-orange-200 rounded-lg">
+                    <div className="flex items-center gap-2 rounded-lg border border-orange-200">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updatePlates(cart.items.plates - 1)}
                         className="px-3 py-1 text-amber-900 hover:bg-orange-100"
                       >
-                        −
+                        -
                       </button>
-                      <span className="px-3 font-semibold text-amber-900">{item.quantity}</span>
+                      <span className="px-3 font-semibold text-amber-900">{cart.items.plates}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updatePlates(cart.items.plates + 1)}
                         className="px-3 py-1 text-amber-900 hover:bg-orange-100"
                       >
                         +
                       </button>
                     </div>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="text-sm font-bold text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
+                  </div>
+                </div>
+              )}
+
+              {cart.items.proteins.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-orange-200 bg-orange-50 p-4"
+                >
+                  <div>
+                    <h3 className="font-bold text-amber-900">{item.name}</h3>
+                    <p className="text-sm text-amber-700">Protein add-on</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 rounded-lg border border-orange-200">
+                      <button
+                        onClick={() => updateProtein(item.name, item.quantity - 1)}
+                        className="px-3 py-1 text-amber-900 hover:bg-orange-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 font-semibold text-amber-900">{item.quantity}</span>
+                      <button
+                        onClick={() => updateProtein(item.name, item.quantity + 1)}
+                        className="px-3 py-1 text-amber-900 hover:bg-orange-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {cart.items.combos.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-orange-200 bg-orange-50 p-4"
+                >
+                  <div>
+                    <h3 className="font-bold text-amber-900">{item.name}</h3>
+                    <p className="text-sm text-amber-700">Ready-made combo</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 rounded-lg border border-orange-200">
+                      <button
+                        onClick={() => updateCombo(item.name, item.quantity - 1)}
+                        className="px-3 py-1 text-amber-900 hover:bg-orange-100"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 font-semibold text-amber-900">{item.quantity}</span>
+                      <button
+                        onClick={() => updateCombo(item.name, item.quantity + 1)}
+                        className="px-3 py-1 text-amber-900 hover:bg-orange-100"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -88,21 +195,17 @@ export default function CartPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-orange-200 bg-white/95 p-8 shadow-md shadow-orange-900/5 h-fit">
+        <div className="h-fit rounded-2xl border border-orange-200 bg-white p-8 shadow-md shadow-orange-900/5">
           <h2 className="text-xl font-bold text-amber-900">Order summary</h2>
           <div className="mt-6 space-y-3 border-t border-orange-200 pt-6">
             <div className="flex justify-between text-amber-800">
               <span>Subtotal</span>
-              <span>₦ {cart.subtotal.toLocaleString()}</span>
+              <span>
+                {cart.currency}
+                {cart.subtotal.toLocaleString()}
+              </span>
             </div>
-            <div className="flex justify-between text-amber-800">
-              <span>Delivery fee</span>
-              <span>₦ {cart.deliveryFee.toLocaleString()}</span>
-            </div>
-            <div className="border-t border-orange-200 pt-3 flex justify-between font-bold text-amber-900 text-lg">
-              <span>Total</span>
-              <span>₦ {cart.total.toLocaleString()}</span>
-            </div>
+            <p className="text-sm text-amber-700">Delivery fee is calculated at checkout.</p>
           </div>
           <div className="mt-6 space-y-3">
             <Link
@@ -113,8 +216,12 @@ export default function CartPage() {
               Proceed to checkout
             </Link>
             <button
-              onClick={clearCart}
-              className="w-full rounded-lg border-2 border-orange-500 bg-white px-4 py-2 font-bold text-orange-600 transition hover:bg-orange-50"
+              onClick={async () => {
+                await clearCart();
+                setMessage('Cart cleared');
+              }}
+              disabled={isCartLoading}
+              className="w-full rounded-lg border-2 border-orange-500 bg-white px-4 py-2 font-bold text-orange-600 transition hover:bg-orange-50 disabled:opacity-50"
             >
               Clear cart
             </button>

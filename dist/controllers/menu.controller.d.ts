@@ -15,11 +15,11 @@ export declare class MenuController extends Controller {
         };
         proteins: {
             name: string;
-            price: number;
+            price: 500 | 1000 | 1500;
         }[];
         combos: {
             name: string;
-            price: number;
+            price: 4500 | 4000 | 2500 | 3000 | 3500;
         }[];
     }>;
 }

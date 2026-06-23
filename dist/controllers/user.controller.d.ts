@@ -1,5 +1,5 @@
 import { Controller } from "tsoa";
-import { proteinItems, comboItems } from "../services/cart.service";
+import type { CartItemsInput } from "../services/cart.service";
 import type { OrderDTO } from "../interfaces/order.interface";
 interface LoginRequest {
     email: string;
@@ -15,44 +15,34 @@ export declare class MainController extends Controller {
         phoneNumber: string;
     }): Promise<{
         message: string;
+        token: string;
+        user: {
+            id: any;
+            email: any;
+            firstName: any;
+            lastName: any;
+            phoneNumber: any;
+        };
     }>;
     login(body: LoginRequest): Promise<{
         message: string;
         token: string;
         user: {
-            id: string;
-            fullName: string;
+            id: any;
+            email: any;
+            firstName: any;
+            lastName: any;
+            phoneNumber: any;
         };
     }>;
     welcome(): Promise<{
         message: string;
     }>;
-    addCart(req: any, body: {
-        proteins?: proteinItems[];
-        combos?: comboItems[];
-    }): Promise<{
-        items: {
-            proteins?: proteinItems[];
-            combos?: comboItems[];
-        };
-        subtotal: number;
-        currency: string;
-        itemsText: string;
-    }>;
-    getCart(req: any): Promise<{
-        items: {
-            proteins: {
-                name: import("../constants/prices").Protein;
-                quantity: number;
-            }[] | undefined;
-            combos: {
-                name: import("../constants/prices").Combo;
-                quantity: number;
-            }[] | undefined;
-        };
-        subtotal: number;
-        currency: string;
-        itemsText: string;
+    addCart(req: any, body: CartItemsInput): Promise<import("../services/cart.service").Cart>;
+    replaceCart(req: any, body: CartItemsInput): Promise<import("../services/cart.service").Cart>;
+    getCart(req: any): Promise<import("../services/cart.service").Cart>;
+    clearCart(req: any): Promise<{
+        message: string;
     }>;
     checkout(req: any, body: OrderDTO): Promise<{
         paymentUrl: string;

@@ -26,20 +26,34 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const order_service_1 = require("../services/order.service");
 const paystack_service_1 = require("../services/paystack.service");
 const delivery_1 = require("../constants/delivery");
+const prices_1 = require("../constants/prices");
 const uuid_1 = require("uuid");
 dotenv_1.default.config();
+const signUserToken = (user) => {
+    return jsonwebtoken_1.default.sign({ id: user._id.toString(), email: user.email }, process.env.JWT_SECRET || "", { expiresIn: "1d" });
+};
+const getUserPayload = (user) => ({
+    id: user._id.toString(),
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber,
+});
 let MainController = class MainController extends tsoa_1.Controller {
     authenticate(req) {
         const authHeader = req.headers.authorization;
         if (!authHeader?.startsWith("Bearer ")) {
+            this.setStatus(401);
             throw new Error("Authorization token missing");
         }
         const token = authHeader.split(" ")[1];
         if (!token) {
+            this.setStatus(401);
             throw new Error("Authorization token missing");
         }
         const payload = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "");
         if (!payload?.id) {
+            this.setStatus(401);
             throw new Error("Invalid token");
         }
         return payload;
@@ -61,10 +75,15 @@ let MainController = class MainController extends tsoa_1.Controller {
             declinedOrders: [],
         });
         await cart_service_1.CartService.getCart(user._id.toString());
-        return { message: "Registered" };
+        return {
+            message: "Registered",
+            token: signUserToken(user),
+            user: getUserPayload(user),
+        };
     }
     async login(body) {
         if (!body.email || !body.password) {
+            this.setStatus(400);
             throw new Error("Email and password are required");
         }
         const user = await user_models_1.default.findOne({ email: body.email });
@@ -77,14 +96,10 @@ let MainController = class MainController extends tsoa_1.Controller {
             this.setStatus(401);
             throw new Error("Invalid email or password");
         }
-        const token = jsonwebtoken_1.default.sign({ id: user._id.toString(), email: user.email }, process.env.JWT_SECRET || "", { expiresIn: "1d" });
         return {
             message: "Logged in",
-            token,
-            user: {
-                id: user._id.toString(),
-                fullName: `${user.firstName} ${user.lastName}`,
-            },
+            token: signUserToken(user),
+            user: getUserPayload(user),
         };
     }
     async welcome() {
@@ -94,11 +109,20 @@ let MainController = class MainController extends tsoa_1.Controller {
     }
     async addCart(req, body) {
         const payload = this.authenticate(req);
-        return await cart_service_1.CartService.add(payload.id, body);
+        return cart_service_1.CartService.add(payload.id, body);
+    }
+    async replaceCart(req, body) {
+        const payload = this.authenticate(req);
+        return cart_service_1.CartService.replace(payload.id, body);
     }
     async getCart(req) {
         const payload = this.authenticate(req);
-        return await cart_service_1.CartService.get(payload.id);
+        return cart_service_1.CartService.getCart(payload.id);
+    }
+    async clearCart(req) {
+        const payload = this.authenticate(req);
+        await cart_service_1.CartService.clear(payload.id);
+        return { message: "Cart cleared" };
     }
     async checkout(req, body) {
         const payload = this.authenticate(req);
@@ -107,7 +131,7 @@ let MainController = class MainController extends tsoa_1.Controller {
             throw new Error("Email and phone number are required");
         }
         const cart = await cart_service_1.CartService.get(payload.id);
-        if (!cart || !cart.items) {
+        if (!cart || cart_service_1.CartService.isEmpty(cart)) {
             this.setStatus(400);
             throw new Error("Cart is empty");
         }
@@ -118,7 +142,7 @@ let MainController = class MainController extends tsoa_1.Controller {
                 this.setStatus(400);
                 throw new Error("Delivery area and address are required for delivery");
             }
-            if (!delivery_1.DELIVERY_FEES[body.deliveryArea]) {
+            if (delivery_1.DELIVERY_FEES[body.deliveryArea] === undefined) {
                 this.setStatus(400);
                 throw new Error("Invalid delivery area. Choose either 'gk' or 'outside-gk'");
             }
@@ -140,7 +164,9 @@ let MainController = class MainController extends tsoa_1.Controller {
             email: body.email,
             amount: total * 100,
             reference: orderRef,
+            callbackUrl: body.callbackUrl,
             metadata: {
+                email: body.email,
                 userId: payload.id,
                 phoneNumber: body.phoneNumber,
                 deliveryType: body.deliveryType,
@@ -148,6 +174,7 @@ let MainController = class MainController extends tsoa_1.Controller {
                 deliveryArea: body.deliveryArea,
                 items: cart.items,
                 subtotal: cart.subtotal,
+                currency: cart.currency || prices_1.CURRENCY,
                 deliveryFee,
                 total,
             },
@@ -189,16 +216,12 @@ let MainController = class MainController extends tsoa_1.Controller {
             deliveryType: body.deliveryType,
             deliveryArea: body.deliveryArea,
             deliveryAddress: body.deliveryAddress,
+            paymentReference: body.orderRef,
         });
-        const itemsText = [
-            ...(order.items.proteins ?? []).map((p) => `${p.quantity} x ${p.name}`),
-            ...(order.items.combos ?? []).map((c) => `${c.quantity} x ${c.name}`),
-        ]
-            .join(", ")
-            .trim();
+        const itemsText = (0, order_service_1.formatOrderItemsText)(order.items);
         const message = order.deliveryType === "delivery"
-            ? `\n🍔 NEW ORDER\n📞 Phone: ${order.phoneNumber}\n🍽 Items: ${itemsText || "No Items"}\n🚚 Delivery Fee: ₦${order.deliveryFee}\n💰 Total: ₦${order.total}\n📍 Address: ${order.deliveryAddress}\n`
-            : `\n🍔 NEW ORDER (PICKUP)\n📞 Phone: ${order.phoneNumber}\n🍽 Items: ${itemsText || "No Items"}\n💰 Total: ₦${order.total}\n📍 Pickup: ${order.pickupLocation}\n`;
+            ? `NEW ORDER\nPhone: ${order.phoneNumber}\nItems: ${itemsText || "No items"}\nDelivery Fee: ${prices_1.CURRENCY}${order.deliveryFee}\nTotal: ${prices_1.CURRENCY}${order.total}\nAddress: ${order.deliveryAddress}`
+            : `NEW ORDER (PICKUP)\nPhone: ${order.phoneNumber}\nItems: ${itemsText || "No items"}\nTotal: ${prices_1.CURRENCY}${order.total}\nPickup: ${order.pickupLocation}`;
         await (0, telegram_1.Telegram)(message);
         return { message: "Order placed successfully. Thank you for choosing Homely Made Meals" };
     }
@@ -233,12 +256,27 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MainController.prototype, "addCart", null);
 __decorate([
+    (0, tsoa_1.Put)("cart"),
+    __param(0, (0, tsoa_1.Request)()),
+    __param(1, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], MainController.prototype, "replaceCart", null);
+__decorate([
     (0, tsoa_1.Get)("cart"),
     __param(0, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MainController.prototype, "getCart", null);
+__decorate([
+    (0, tsoa_1.Delete)("cart"),
+    __param(0, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MainController.prototype, "clearCart", null);
 __decorate([
     (0, tsoa_1.Post)("checkout"),
     (0, tsoa_1.SuccessResponse)("200", "Payment Initialized"),

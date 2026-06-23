@@ -22,83 +22,106 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const admin_model_1 = __importDefault(require("../models/admin.model"));
 const order_models_1 = __importDefault(require("../models/order.models"));
 const telegram_1 = require("../utils/telegram");
+const order_service_1 = require("../services/order.service");
+const isOrderStatus = (value) => {
+    return order_service_1.ORDER_STATUSES.includes(value);
+};
 let AdminController = class AdminController extends tsoa_1.Controller {
     auth(req) {
         const token = req.headers.authorization?.split(" ")[1];
-        if (!token)
+        if (!token) {
+            this.setStatus(401);
             throw new Error("Unauthorized");
+        }
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        if (decoded.role !== "admin")
+        if (decoded.role !== "admin") {
+            this.setStatus(401);
             throw new Error("Unauthorized");
+        }
+        return decoded;
     }
-    async register(b) {
-        const existing = await admin_model_1.default.findOne({ email: b.email });
+    async register(body) {
+        const existing = await admin_model_1.default.findOne({ email: body.email });
         if (existing) {
             this.setStatus(409);
             throw new Error("Admin already exists");
         }
-        const hashed = await bcrypt_1.default.hash(b.password, 10);
-        await admin_model_1.default.create({ name: b.name, email: b.email, password: hashed });
+        const hashed = await bcrypt_1.default.hash(body.password, 10);
+        await admin_model_1.default.create({ name: body.name, email: body.email, password: hashed });
         return { message: "Admin registered" };
     }
-    async login(b) {
-        const a = await admin_model_1.default.findOne({ email: b.email });
-        if (!a || !a.password) {
-            return { message: "Invalid credentials" };
+    async login(body) {
+        const admin = await admin_model_1.default.findOne({ email: body.email });
+        if (!admin || !admin.password) {
+            this.setStatus(401);
+            throw new Error("Invalid credentials");
         }
-        const ok = await bcrypt_1.default.compare(b.password, a.password);
+        const ok = await bcrypt_1.default.compare(body.password, admin.password);
         if (!ok) {
-            return { message: "Invalid credentials" };
+            this.setStatus(401);
+            throw new Error("Invalid credentials");
         }
-        const adminName = a.name ?? a.fullname ?? "Admin";
+        const adminName = admin.name ?? admin.fullname ?? "Admin";
         return {
-            token: jsonwebtoken_1.default.sign({ email: a.email, role: "admin", name: adminName }, process.env.JWT_SECRET, { expiresIn: "1d" }),
+            token: jsonwebtoken_1.default.sign({ email: admin.email, role: "admin", name: adminName }, process.env.JWT_SECRET, { expiresIn: "1d" }),
+            admin: {
+                name: adminName,
+                email: admin.email,
+            },
             message: `Welcome ${adminName}`,
         };
     }
-    async get(r) {
-        this.auth(r);
-        const orders = await order_models_1.default.find()
-            .sort({ createdAt: -1 })
-            .lean();
-        return orders.map((o) => ({
-            id: o._id.toString(),
-            phoneNumber: o.phoneNumber,
-            items: o.items,
-            subtotal: o.subtotal,
-            deliveryFee: o.deliveryFee,
-            total: o.total,
-            status: o.status,
-            deliveryType: o.deliveryType,
-            deliveryAddress: o.deliveryAddress ?? undefined,
-            pickupLocation: o.pickupLocation ?? undefined,
-            deliveryWindow: o.deliveryWindow ?? undefined,
-            createdAt: o.createdAt,
+    async get(req) {
+        this.auth(req);
+        const orders = await order_models_1.default.find().sort({ createdAt: -1 }).lean();
+        return orders.map((order) => ({
+            id: order._id.toString(),
+            userEmail: order.userEmail,
+            paymentReference: order.paymentReference,
+            phoneNumber: order.phoneNumber,
+            items: order.items,
+            subtotal: order.subtotal,
+            currency: order.currency,
+            deliveryFee: order.deliveryFee,
+            total: order.total,
+            status: order.status,
+            deliveryType: order.deliveryType,
+            deliveryAddress: order.deliveryAddress ?? undefined,
+            pickupLocation: order.pickupLocation ?? undefined,
+            deliveryWindow: order.deliveryWindow ?? undefined,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
         }));
     }
-    async update(id, b, r) {
-        this.auth(r);
-        const o = await order_models_1.default.findByIdAndUpdate(id, b, { new: true });
-        if (!o) {
+    async update(id, body, req) {
+        this.auth(req);
+        if (!body.status || !isOrderStatus(body.status)) {
+            this.setStatus(400);
+            throw new Error(`Status must be one of: ${order_service_1.ORDER_STATUSES.join(", ")}`);
+        }
+        const order = await order_models_1.default.findByIdAndUpdate(id, { status: body.status }, { new: true });
+        if (!order) {
+            this.setStatus(404);
             throw new Error("Order not found");
         }
-        if (!o.phoneNumber) {
-            throw new Error("Phone number missing");
-        }
-        await (0, telegram_1.Telegram)(`Order status: ${o.status}`);
+        await (0, telegram_1.Telegram)(`Order ${order.paymentReference ?? order._id.toString()} status: ${order.status}`);
         return {
-            id: o._id.toString(),
-            phoneNumber: o.phoneNumber,
-            items: o.items,
-            subtotal: o.subtotal,
-            deliveryFee: o.deliveryFee,
-            total: o.total,
-            status: o.status,
-            deliveryType: o.deliveryType,
-            deliveryAddress: o.deliveryAddress,
-            pickupLocation: o.pickupLocation,
-            deliveryWindow: o.deliveryWindow,
-            createdAt: o.createdAt,
+            id: order._id.toString(),
+            userEmail: order.userEmail,
+            paymentReference: order.paymentReference,
+            phoneNumber: order.phoneNumber,
+            items: order.items,
+            subtotal: order.subtotal,
+            currency: order.currency,
+            deliveryFee: order.deliveryFee,
+            total: order.total,
+            status: order.status,
+            deliveryType: order.deliveryType,
+            deliveryAddress: order.deliveryAddress,
+            pickupLocation: order.pickupLocation,
+            deliveryWindow: order.deliveryWindow,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
         };
     }
 };

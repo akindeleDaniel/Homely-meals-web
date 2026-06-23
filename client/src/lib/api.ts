@@ -10,20 +10,6 @@ export interface Combo {
   price: number;
 }
 
-export interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  proteins?: Protein[];
-  combos?: Combo[];
-  image?: string;
-  availability?: {
-    window: string;
-    note: string;
-  };
-}
-
 export interface MenuResponse {
   headline: string;
   subtext: string;
@@ -41,91 +27,207 @@ export interface MenuResponse {
   combos: Combo[];
 }
 
-export async function fetchMenuHome(): Promise<MenuResponse> {
-  try {
-    const url = `${API_BASE_URL}/menu/home`;
-    console.log('Fetching menu from:', url);
-
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    console.log('Response status:', res.status);
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('API Error response:', errorText);
-      throw new Error(`Failed to fetch menu: ${res.status} ${res.statusText} - ${errorText}`);
-    }
-    const data = await res.json();
-    console.log('Menu data received:', data);
-    return data;
-  } catch (error) {
-    console.error('Error fetching menu:', error);
-    // Fallback to mock data
-    console.log('Using mock data as fallback');
-    return getMockMenuData();
-  }
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
 }
 
-function getMockMenuData(): MenuResponse {
-  return {
-    headline: 'Special Wednesday Stir-Fried Spaghetti 🍝',
-    subtext: 'Choose your base spaghetti. Add your preferred proteins or pick a ready-made combo.',
-    orderButtonText: '🟢 Order Your Spag Now',
-    baseMeal: {
-      name: 'Stir-Fried Spaghetti (No Protein)',
-      price: 2000,
-      currency: '₦',
-    },
-    deliveryInfo: {
-      window: 'Wednesday 2:00 PM – 5:00 PM',
-      note: 'Delivery and pickup available within this time frame only',
-    },
-    proteins: [
-      { name: 'Egg', price: 500 },
-      { name: 'Coleslaw', price: 500 },
-      { name: 'Beef', price: 1000 },
-      { name: 'Fish', price: 1000 },
-      { name: 'Plantain + Fish', price: 1500 },
-      { name: 'Chicken', price: 1500 },
-      { name: 'Sardine', price: 1500 },
-    ],
-    combos: [
-      { name: 'Stir-Fried Spag + Sardine & Fried Fish', price: 4500 },
-      { name: 'Stir-Fried Spag + Egg & Fried Fish', price: 4000 },
-      { name: 'Stir-Fried Spag + Egg', price: 2500 },
-      { name: 'Stir-Fried Spag + Beef', price: 3000 },
-      { name: 'Stir-Fried Spag + Fish & Plantain', price: 3500 },
-      { name: 'Stir-Fried Spag + Dodo & Beef', price: 3500 },
-    ],
+export interface AuthResponse {
+  message: string;
+  token: string;
+  user: User;
+}
+
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+}
+
+export interface CartLine {
+  name: string;
+  quantity: number;
+}
+
+export interface CartInput {
+  plates?: number;
+  proteins?: CartLine[];
+  combos?: CartLine[];
+}
+
+export interface ServerCart {
+  items: {
+    plates: number;
+    proteins: CartLine[];
+    combos: CartLine[];
   };
+  subtotal: number;
+  currency: string;
+  itemsText: string;
 }
 
-export async function fetchMealDetail(mealId: string): Promise<MenuItem> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/menu/${mealId}`);
-    if (!res.ok) {
-      throw new Error('Failed to fetch meal details');
-    }
-    return res.json();
-  } catch (error) {
-    console.error('Error fetching meal detail:', error);
-    throw error;
-  }
+export interface CheckoutPayload {
+  email: string;
+  phoneNumber: string;
+  deliveryType: 'pickup' | 'delivery';
+  deliveryArea?: 'gk' | 'outside-gk';
+  deliveryAddress?: string;
+  callbackUrl?: string;
 }
 
-export async function fetchAllMeals(): Promise<MenuItem[]> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/menu`);
-    if (!res.ok) {
-      throw new Error('Failed to fetch meals');
-    }
-    return res.json();
-  } catch (error) {
-    console.error('Error fetching meals:', error);
-    throw error;
+export interface CheckoutResponse {
+  paymentUrl: string;
+  orderRef: string;
+}
+
+export interface AdminOrder {
+  id: string;
+  userEmail?: string;
+  paymentReference?: string;
+  phoneNumber: string;
+  items: ServerCart['items'];
+  subtotal: number;
+  currency?: string;
+  deliveryFee: number;
+  total: number;
+  status: string;
+  deliveryType: 'pickup' | 'delivery';
+  deliveryAddress?: string;
+  pickupLocation?: string;
+  deliveryWindow?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export const ORDER_STATUSES = ['pending', 'paid', 'preparing', 'ready', 'delivered'] as const;
+
+async function apiRequest<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string | null
+): Promise<T> {
+  const headers = new Headers(options.headers);
+  headers.set('Content-Type', 'application/json');
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || errorData.error || `Request failed with ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export async function fetchMenuHome(): Promise<MenuResponse> {
+  return apiRequest<MenuResponse>('/menu/home');
+}
+
+export async function loginCustomer(email: string, password: string) {
+  return apiRequest<AuthResponse>('/main/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function registerCustomer(data: RegisterPayload) {
+  return apiRequest<AuthResponse>('/main/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function fetchCart(token: string) {
+  return apiRequest<ServerCart>('/main/cart', {}, token);
+}
+
+export async function addToServerCart(token: string, data: CartInput) {
+  return apiRequest<ServerCart>(
+    '/main/cart/add',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    token
+  );
+}
+
+export async function saveServerCart(token: string, data: CartInput) {
+  return apiRequest<ServerCart>(
+    '/main/cart',
+    {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    },
+    token
+  );
+}
+
+export async function clearServerCart(token: string) {
+  return apiRequest<{ message: string }>(
+    '/main/cart',
+    {
+      method: 'DELETE',
+    },
+    token
+  );
+}
+
+export async function checkoutOrder(token: string, data: CheckoutPayload) {
+  return apiRequest<CheckoutResponse>(
+    '/main/checkout',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    token
+  );
+}
+
+export async function placePaidOrder(token: string, data: CheckoutPayload & { orderRef: string }) {
+  return apiRequest<{ message: string }>(
+    '/main/order',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    token
+  );
+}
+
+export async function loginAdmin(email: string, password: string) {
+  return apiRequest<{ token: string; admin: { name: string; email: string }; message: string }>(
+    '/admin/login',
+    {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }
+  );
+}
+
+export async function fetchAdminOrders(token: string) {
+  return apiRequest<AdminOrder[]>('/admin/orders', {}, token);
+}
+
+export async function updateAdminOrderStatus(token: string, id: string, status: string) {
+  return apiRequest<AdminOrder>(
+    `/admin/orders/${id}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    },
+    token
+  );
 }

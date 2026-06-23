@@ -12,6 +12,10 @@ const cartSchema = new mongoose_1.default.Schema({
         unique: true,
     },
     items: {
+        plates: {
+            type: Number,
+            default: 0,
+        },
         proteins: [
             {
                 name: String,
